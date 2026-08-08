@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>क्षेत्रीय पंचांग</title>
+<link id="gfonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#09090b;--panel:#15171c;--line:#272b35;--text:#f8fafc;--muted:#94a3b8;--accent:#ff5a00;--good:#16c784;--bad:#ea3943}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,#1a120c 0%,var(--bg) 55%);color:var(--text);font-family:"Noto Sans Devanagari",sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:24px}
+h1{color:var(--accent);margin:0 0 6px;font-size:clamp(1.8rem,4vw,2.4rem);font-weight:700;letter-spacing:.02em}
+.sub,.label{color:var(--muted)}
+.controls,.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.field label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px}
+input,select,button{width:100%;padding:11px;border-radius:10px;background:#0f1115;color:var(--text);border:1px solid var(--line);font:inherit}
+button{background:var(--accent);border:0;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(1.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.metric{background:#101216;border:1px solid var(--line);border-radius:12px;padding:14px}
+.value{font-weight:700;margin-top:5px;font-size:1.05rem}
+.slot{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.good{color:var(--good);font-weight:700}.bad{color:var(--bad);font-weight:700}
+h2{margin:0 0 12px;font-size:1.25rem}
+#status{min-height:1.4em;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">क्षेत्रीय पंचांग</h1>
+  <div class="sub" id="subtitle"></div>
+  <div class="controls">
+    <div class="field"><label id="lblState"></label><select id="state"></select></div>
+    <div class="field"><label id="lblLat"></label><input id="lat" value="12.9716" type="number" step=".0001"></div>
+    <div class="field"><label id="lblLon"></label><input id="lon" value="77.5946" type="number" step=".0001"></div>
+    <div class="field"><label id="lblDate"></label><input id="date" type="date"></div>
+    <div class="field"><label id="lblLang"></label><select id="lang"></select></div>
+    <div class="field"><label>&nbsp;</label><button id="btn" type="button">…</button></div>
+  </div>
+  <div id="status" class="sub"></div>
+  <div id="p"></div>
+  <div id="r"></div>
+  <div id="h"></div>
+</div>
+<script src="/i18n.js?v=datetime2"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const I = window.I18N;
+const STATE_CODES = ["KA","TN","AP","TS","MH","GJ","UP","RJ","KL","WB","OD"];
+
+function lang() {
+  const v = $("lang").value;
+  return I.languages[v] ? v : (I.stateLang[$("state").value] || "kn");
+}
+
+function ui() { return I.ui[lang()]; }
+
+/** Convert Western digits 0-9 to the active language's native numerals. */
+function N(value) {
+  if (value == null) return "—";
+  const digits = I.digits[lang()] || "0123456789";
+  return String(value).replace(/[0-9]/g, (d) => digits[Number(d)]);
+}
+
+/** Localize AM/PM + digits in time strings like "06:12:00 AM - 07:30:00 PM". */
+function localizeTime(value) {
+  if (value == null || value === "") return "—";
+  const map = I.ampm[lang()] || { AM: "AM", PM: "PM" };
+  return N(String(value)
+    .replace(/\bAM\b/gi, map.AM)
+    .replace(/\bPM\b/gi, map.PM));
+}
+
+/** Localize ISO date YYYY-MM-DD to regional "day month year". */
+function localizeDate(iso) {
+  if (!iso) return "—";
+  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return N(iso);
+  const year = m[1];
+  const monthIdx = Number(m[2]) - 1;
+  const day = String(Number(m[3]));
+  const months = I.months[lang()] || I.months.hi;
+  return N(`${day} ${months[monthIdx]} ${year}`);
+}
+
+function applyFont() {
+  document.body.style.fontFamily = I.fonts[lang()];
+  document.documentElement.lang = lang();
+}
+
+function fillLangOptions() {
+  const sel = $("lang");
+  const cur = sel.value || I.stateLang[$("state").value] || "kn";
+  sel.innerHTML = Object.entries(I.languages)
+    .map(([code, name]) => `<option value="${code}">${name}</option>`).join("");
+  sel.value = I.languages[cur] ? cur : (I.stateLang[$("state").value] || "kn");
+}
+
+function fillStateOptions() {
+  const L = lang();
+  const sel = $("state");
+  const cur = sel.value || "KA";
+  sel.innerHTML = STATE_CODES.map((code) =>
+    `<option value="${code}">${I.states[L][code] || code}</option>`
+  ).join("");
+  sel.value = STATE_CODES.includes(cur) ? cur : "KA";
+}
+
+function applyChrome() {
+  const u = ui();
+  $("title").textContent = u.title;
+  $("subtitle").textContent = u.subtitle;
+  document.title = u.title;
+  $("lblState").textContent = u.state;
+  $("lblLat").textContent = u.latitude;
+  $("lblLon").textContent = u.longitude;
+  $("lblDate").textContent = u.date;
+  $("lblLang").textContent = u.language;
+  $("btn").textContent = u.calculate;
+  applyFont();
+  fillStateOptions();
+}
+
+function metric(label, value) {
+  return `<div class="metric"><div class="label">${label}</div><div class="value">${value ?? "—"}</div></div>`;
+}
+
+function localizeSlots(list, table) {
+  const u = ui();
+  if (!list?.length) return "";
+  return list.map((x) => {
+    const name = table[x.name] || x.name;
+    const good = x.nature === "Good" || x.nature === u.good;
+    return `<div class="slot"><span class="${good ? "good" : "bad"}">${name}</span><span>${localizeTime(x.time)}</span></div>`;
+  }).join("");
+}
+
+function slotsCard(title, list, table) {
+  if (!list?.length) return "";
+  return `<div class="card"><h2>${title}</h2>${localizeSlots(list, table)}</div>`;
+}
+
+function localizePanchang(p) {
+  const L = lang();
+  const tIdx = (p.panchang.tithi.index || 1) - 1;
+  const nIdx = (p.panchang.nakshatra.index || 1) - 1;
+  const yIdx = (p.panchang.yoga.index || 1) - 1;
+  const vIdx = p.panchang.vaar.index ?? 0;
+  return {
+    tithi: I.tithi[L][tIdx],
+    nakshatra: I.nakshatra[L][nIdx],
+    pada: p.panchang.nakshatra.pada,
+    yoga: I.yoga[L][yIdx],
+    karana: I.karana[L][p.panchang.karana.name] || p.panchang.karana.name,
+    vaar: I.vaar[L][vIdx],
+    system: I.systems[L][p.regional.system] || p.regional.system,
+  };
+}
+
+async function loadAll() {
+  const u = ui();
+  $("status").textContent = u.calculating;
+  try {
+    const qs = new URLSearchParams({
+      state_code: $("state").value,
+      lat: $("lat").value,
+      lon: $("lon").value,
+      timezone: "Asia/Kolkata",
+      date_str: $("date").value,
+      lang: lang(),
+    });
+    const p = await fetch(`/api/v1/panchang?${qs}`).then((x) => x.json());
+    const loc = localizePanchang(p);
+    $("p").innerHTML = `<div class="card"><h2>${localizeDate(p.date)} — ${I.states[lang()][p.state_code] || p.state_code}</h2><div class="grid">
+      ${metric(u.tithi, loc.tithi)}
+      ${metric(u.nakshatra, `${loc.nakshatra} / ${u.pada} ${N(loc.pada)}`)}
+      ${metric(u.yoga, loc.yoga)}
+      ${metric(u.karana, loc.karana)}
+      ${metric(u.vaar, loc.vaar)}
+      ${metric(u.sunrise, localizeTime(p.panchang.sunrise))}
+      ${metric(u.sunset, localizeTime(p.panchang.sunset))}
+      ${metric(u.abhijit, localizeTime(p.auspicious_timings.abhijit_muhurat))}
+      ${metric(u.rahu_kalam, localizeTime(p.inauspicious_timings.rahu_kalam))}
+      ${metric(u.system, loc.system)}
+    </div></div>`;
+
+    const L = lang();
+    $("r").innerHTML =
+      slotsCard(u.choghadiya, p.regional.choghadiya_day, I.choghadiya[L]) +
+      slotsCard(u.gowri, p.regional.gowri_panchangam, I.gowri[L]);
+
+    const h = await fetch(`/api/v1/rashifal?lang=${L}&date_str=${$("date").value}`).then((x) => x.json());
+    $("h").innerHTML = `<div class="card"><h2>${u.rashifal} — ${I.languages[L]}</h2><div class="grid">${
+      h.rashifal.map((x, i) => {
+        const display = I.rashi[L][i] || x.rashi;
+        return `<div class="metric"><div class="value">${display}</div><p>${x.prediction}</p><div class="label">${u.lucky}: ${x.lucky_color} • ${N(x.lucky_number)}</div></div>`;
+      }).join("")
+    }</div></div>`;
+    $("status").textContent = u.complete;
+  } catch (e) {
+    $("status").textContent = `${u.error}: ${e.message}`;
+  }
+}
+
+$("date").value = new Date().toISOString().slice(0, 10);
+$("state").value = "KA";
+fillLangOptions();
+$("lang").value = I.stateLang.KA;
+applyChrome();
+
+$("lang").addEventListener("change", () => { applyChrome(); loadAll(); });
+$("state").addEventListener("change", () => {
+  const mapped = I.stateLang[$("state").value];
+  if (mapped && I.languages[mapped]) $("lang").value = mapped;
+  applyChrome();
+  loadAll();
+});
+$("btn").addEventListener("click", loadAll);
+loadAll();
+</script>
+</body>
+</html>
