@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a4a8a">
+<title></title>
+<link rel="stylesheet" href="/fonts.css?v=purity2">
+<style>
+:root{
+  --glass:rgba(10,24,52,.78);
+  --stroke:rgba(255,255,255,.34);
+  --stroke-soft:rgba(255,255,255,.18);
+  --text:#ffffff;
+  --muted:rgba(255,255,255,.9);
+  --muted2:rgba(255,255,255,.72);
+  --good:#8dffc4;
+  --bad:#ffb0bd;
+  --ink:#ffffff;
+  --ink-soft:rgba(255,255,255,.9);
+  --fest:#ffe08a;
+  --paper:rgba(255,255,255,.14);
+  --shadow:0 14px 40px rgba(0,16,48,.36);
+  --sky-tone:day;
+  --ui-font:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --content-font:var(--ui-font);
+  --panel-bg:rgba(8,22,48,.82);
+  --state-accent:#ffc978;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;color:var(--text)}
+body{
+  font-family:var(--ui-font);
+  font-weight:400;
+  background:#0b1e3d;
+  overflow-x:hidden;
+}
+/* Regional script fonts apply only to calendar/content — never chrome/drawer */
+.app,.sheet-body,.dayPanel-content{
+  font-family:var(--content-font),var(--ui-font),sans-serif;
+}
+body.theme-light{
+  --glass:rgba(255,253,248,.94);
+  --stroke:rgba(26,26,26,.18);
+  --stroke-soft:rgba(26,26,26,.1);
+  --text:#1A1208;
+  --muted:rgba(26,18,8,.78);
+  --muted2:rgba(26,18,8,.62);
+  --good:#0b6b3c;
+  --bad:#a11d28;
+  --ink:#1A1208;
+  --ink-soft:rgba(26,18,8,.86);
+  --fest:#7C2D12;
+  --paper:rgba(255,253,245,.96);
+  --shadow:0 14px 40px rgba(40,20,0,.12);
+  --panel-bg:rgba(255,253,248,.96);
+  --state-accent:#9c3d24;
+  background:#FFFDF5;
+}
+body.theme-light::before{
+  background:linear-gradient(180deg,#FFFDF5 0%,#F5E6C8 45%,#E8D4A8 100%) !important;
+}
+body.theme-light .cal-card.panji,
+body.theme-light .cal-body,
+body.theme-light .cal-actions button{
+  color:#3a2412;
+}
+body.theme-light .cal-head h2{color:#FFF8EC}
+body.theme-light .cal-card .icon-btn{color:#7A0F1A}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:linear-gradient(180deg,#4a90d9 0%,#1f5fa8 40%,#163a72 100%);
+}
+#bgArt{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-size:cover;background-position:center top;
+  opacity:.38;mix-blend-mode:soft-light;
+  animation:bgDrift 18s ease-in-out infinite alternate;
+}
+@keyframes bgDrift{from{transform:scale(1.04)}to{transform:scale(1.1) translateY(-2%)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes softPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}50%{box-shadow:inset 0 0 0 1px rgba(255,200,120,.35)}}
+
+.app{width:min(480px,100%);margin:0 auto;min-height:100vh;padding:max(10px,env(safe-area-inset-top)) 12px 28px}
+@media (min-width:960px){
+  .app{width:min(1180px,100%);padding:20px 16px 36px}
+  .desk{display:grid;grid-template-columns:minmax(360px,1.05fr) 1fr;gap:14px;align-items:start}
+  .desk > aside{position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto}
+  .desk-main{
+    display:flex;flex-direction:column;gap:12px;
+    max-height:calc(100vh - 110px);overflow-y:auto;overflow-x:hidden;
+    padding-right:6px;scroll-behavior:smooth;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.4) transparent;
+  }
+  body.theme-light .desk-main{scrollbar-color:rgba(80,40,20,.35) transparent}
+}
+.glass{
+  background:var(--glass);
+  backdrop-filter:saturate(180%) blur(28px);
+  -webkit-backdrop-filter:saturate(180%) blur(28px);
+  border:1px solid var(--stroke);
+  box-shadow:var(--shadow);
+  border-radius:26px;
+  color:var(--text);
+}
+#hoursWrap,#h > .glass,.list-card{
+  background:var(--panel-bg);
+  color:var(--text);
+}
+.topbar{display:flex;gap:8px;align-items:end;margin-bottom:10px;padding:12px;border-radius:22px;animation:fadeUp .45s ease both;flex-wrap:wrap}
+.topbar .field{flex:1;min-width:0}
+.topbar .field.btn-wrap{flex:0 1 auto;min-width:7.5rem}
+.topbar label{display:block;font-size:.7rem;color:var(--muted2);margin:0 0 5px 4px;font-weight:600}
+.topbar select,.topbar button,.topbar input[type="date"]{
+  width:100%;height:42px;border-radius:14px;border:1px solid var(--stroke);
+  background:var(--panel-bg);color:var(--text);font:inherit;padding:0 10px;outline:none;
+}
+.topbar button#btn{
+  width:auto;min-width:100%;padding:0 14px;white-space:nowrap;
+  font-size:clamp(.72rem,2.4vw,.88rem);font-weight:800;overflow:hidden;text-overflow:ellipsis;
+}
+/* Multi-script stack so each state option renders in its own regional glyphs */
+#state{
+  font-family:
+    NotoSansDevanagari, NotoSansKannada, NotoSansTamil, NotoSansTelugu,
+    NotoSansMalayalam, NotoSansOriya, NotoSansBengali, NotoSansGujarati,
+    NotoSansGurmukhi, var(--ui-font), sans-serif !important;
+}
+.topbar select option{color:#111;background:#fff}
+.topbar button{background:rgba(255,255,255,.32);font-weight:700;cursor:pointer}
+.date-field{position:relative;min-width:0;width:100%}
+.date-field input[type="date"]{
+  width:100%;height:42px;border-radius:14px;border:1px solid var(--stroke);
+  background:var(--panel-bg);color:transparent;caret-color:transparent;
+  font:inherit;padding:0 28px 0 10px;outline:none;position:relative;z-index:1;
+  color-scheme:dark;min-width:0;
+}
+.date-field .date-display{
+  position:absolute;inset:0 26px 0 0;display:flex;align-items:center;padding:0 10px;
+  pointer-events:none;z-index:0;font-family:var(--content-font),var(--ui-font),sans-serif;
+  font-size:clamp(.68rem,.9vw,.8rem);font-weight:700;color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 1px 2px rgba(0,0,0,.45);
+}
+body.theme-light .date-field input[type="date"]{color-scheme:light}
+body.theme-light .date-field .date-display{color:#1A1208;text-shadow:none}
+.topbar .field.date-wrap{flex:1 1 150px;min-width:128px;max-width:220px}
+
+.hero{text-align:center;padding:20px 14px 14px;margin-bottom:12px;overflow:hidden;animation:fadeUp .55s ease both;background:var(--panel-bg)}
+.hero-orb{
+  width:76px;height:76px;margin:0 auto 6px;border-radius:50%;background-size:cover;background-position:center;
+  box-shadow:0 10px 36px rgba(0,0,0,.28);animation:floatY 7s ease-in-out infinite;
+}
+.place{font-size:1.12rem;font-weight:600;margin:0;color:var(--text)}
+.hero-date{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.hero-main{margin:8px 0 0;font-size:clamp(2rem,8vw,2.9rem);font-weight:300;letter-spacing:-.02em;line-height:1.08;color:var(--text)}
+.hero-sub{margin:8px 0 0;font-size:1rem;font-weight:600;color:var(--text)}
+.hero-meta{margin:6px 0 0;color:var(--muted);font-size:.88rem}
+.status-pill{
+  display:inline-flex;margin-top:10px;padding:5px 12px;border-radius:999px;
+  background:rgba(255,255,255,.14);border:1px solid var(--stroke-soft);font-size:.74rem;color:var(--muted);
+}
+body.theme-light .status-pill{background:rgba(0,0,0,.05)}
+.section-title{margin:0 0 8px;font-size:.74rem;font-weight:700;letter-spacing:.04em;color:var(--muted);padding:0 2px}
+.h-scroll,.rashi-scroll{
+  display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;
+  scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;touch-action:pan-x;cursor:grab;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.45) rgba(255,255,255,.08);
+}
+.h-scroll:active,.rashi-scroll:active{cursor:grabbing}
+.h-scroll::-webkit-scrollbar,.rashi-scroll::-webkit-scrollbar{height:7px;display:block}
+.h-scroll::-webkit-scrollbar-thumb,.rashi-scroll::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.42);border-radius:999px;
+}
+body.theme-light .h-scroll,body.theme-light .rashi-scroll{scrollbar-color:rgba(80,40,20,.4) rgba(0,0,0,.06)}
+body.theme-light .h-scroll::-webkit-scrollbar-thumb,body.theme-light .rashi-scroll::-webkit-scrollbar-thumb{background:rgba(80,40,20,.35)}
+.hour-card{
+  flex:0 0 84px;text-align:center;padding:10px 6px;border-radius:18px;cursor:pointer;
+  background:rgba(255,255,255,.12);border:1px solid var(--stroke-soft);color:var(--text);
+  scroll-snap-align:start;animation:riseIn .42s cubic-bezier(.22,.8,.24,1) both;
+  transition:transform .18s ease,background .18s ease,border-color .18s ease;
+}
+.hour-card:hover{transform:translateY(-3px);background:rgba(255,255,255,.18)}
+.hour-card:nth-child(1){animation-delay:.02s}.hour-card:nth-child(2){animation-delay:.05s}
+.hour-card:nth-child(3){animation-delay:.08s}.hour-card:nth-child(4){animation-delay:.11s}
+.hour-card:nth-child(5){animation-delay:.14s}.hour-card:nth-child(6){animation-delay:.17s}
+.hour-card:nth-child(7){animation-delay:.2s}.hour-card:nth-child(8){animation-delay:.23s}
+.hour-card:nth-child(n+9){animation-delay:.26s}
+.hour-card .t{font-size:.68rem;color:var(--muted);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hour-card img{width:32px;height:32px;border-radius:50%;object-fit:cover;margin:0 auto 6px;display:block}
+.hour-card .v{font-size:.74rem;font-weight:700;line-height:1.15;color:var(--text)}
+.hour-card.good{box-shadow:inset 0 0 0 1px rgba(141,255,196,.45);animation:riseIn .42s cubic-bezier(.22,.8,.24,1) both,softPulse 3.6s ease-in-out infinite}
+.hour-card.bad .v{color:var(--bad)}
+.hour-card.good .v{color:var(--good)}
+body.theme-light .hour-card{background:rgba(255,255,255,.88);border-color:rgba(26,18,8,.12)}
+.widgets{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.widget{
+  padding:14px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;
+  background:var(--panel-bg);color:var(--text);animation:riseIn .5s ease both;
+  transition:transform .18s ease;
+}
+.widget:hover{transform:translateY(-2px)}
+.widget .lbl{display:flex;align-items:center;gap:7px;font-size:.7rem;color:var(--muted);font-weight:700}
+.widget .lbl img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+.widget .val{font-size:1.02rem;font-weight:700;line-height:1.25;margin-top:8px;color:var(--text)}
+.widget .hint{margin-top:5px;font-size:.74rem;color:var(--muted2)}
+.list-card{padding:6px 12px 8px;margin-bottom:12px}
+.list-row{display:grid;grid-template-columns:1.2fr auto;gap:10px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--stroke-soft);font-size:.9rem;cursor:pointer;color:var(--text)}
+.list-row:last-child{border-bottom:0}
+.list-row .time{color:var(--muted);font-size:.8rem;text-align:right}
+.good{color:var(--good)}.bad{color:var(--bad)}
+.rashi-panel{padding:12px;margin-bottom:12px;animation:fadeUp .5s ease both}
+.rashi-focus{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;padding:10px 12px;border-radius:16px;
+  background:rgba(255,255,255,.1);border:1px solid var(--stroke-soft);font-size:.78rem;color:var(--text);
+}
+.rashi-focus b{color:var(--state-accent,#ffc978);font-weight:800}
+.rashi-list{display:flex;flex-direction:column;gap:8px;max-height:min(70vh,560px);overflow-y:auto;padding-right:2px;scrollbar-width:thin}
+.rashi-item{
+  border-radius:18px;border:1px solid var(--stroke-soft);background:rgba(8,22,48,.9);
+  overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease;min-height:52px;
+}
+.rashi-item.open{border-color:rgba(255,200,120,.45);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.rashi-item.moon-today{box-shadow:inset 0 0 0 1px rgba(255,200,120,.55)}
+.rashi-item.sun-today{outline:1px dashed rgba(255,180,80,.55);outline-offset:-1px}
+.rashi-head{
+  width:100%;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;
+  padding:12px 14px;border:0;background:transparent;color:#fff;font:inherit;text-align:left;cursor:pointer;
+  min-height:52px;
+}
+.rashi-head .name{font-weight:800;font-size:1rem;color:#fff;line-height:1.25}
+.rashi-head .meta{font-size:.72rem;color:rgba(255,255,255,.82);margin-top:3px}
+.rashi-item:not(.open) .rashi-head .meta{display:none}
+.rashi-head .chev{font-size:1.1rem;opacity:.85;color:#fff;transition:transform .2s ease}
+.rashi-item.open .chev{transform:rotate(180deg)}
+.rashi-body{
+  display:none;padding:0 14px 14px;border-top:1px solid var(--stroke-soft);
+  animation:riseIn .35s ease both;color:#fff;
+}
+.rashi-item.open .rashi-body{display:block}
+.rashi-body .pred{margin:10px 0 8px;font-size:.88rem;line-height:1.5;color:#fff}
+.rashi-body .block{margin:10px 0 0}
+.rashi-body .block h4{
+  margin:0 0 4px;font-size:.7rem;font-weight:800;letter-spacing:.04em;
+  color:rgba(255,200,120,.95);text-transform:uppercase;
+}
+.rashi-body .block p{margin:0;font-size:.84rem;line-height:1.45;color:rgba(255,255,255,.92)}
+.rashi-body .state-box{
+  margin-top:12px;padding:10px 12px;border-radius:14px;
+  background:rgba(255,255,255,.08);border:1px solid var(--stroke-soft);
+}
+.rashi-body .state-box h4{color:var(--state-accent,#ffc978)}
+body.theme-light .rashi-body .block h4{color:#9c3d24}
+body.theme-light .rashi-body .block p{color:rgba(26,18,8,.88)}
+body.theme-light .rashi-body .state-box{background:rgba(0,0,0,.04)}
+body.theme-light .rashi-body .pred{color:#1A1208}
+.rashi-body .facts{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.rashi-body .fact{
+  font-size:.7rem;font-weight:700;padding:4px 8px;border-radius:999px;
+  background:rgba(255,255,255,.14);color:rgba(255,255,255,.9);border:1px solid var(--stroke-soft);
+}
+.rashi-body .daily-title{font-size:.72rem;font-weight:800;letter-spacing:.04em;color:rgba(255,255,255,.78);margin:0 0 6px}
+.rashi-body .daily{font-size:.84rem;line-height:1.45;color:rgba(255,255,255,.9);margin:0}
+.rashi-body .daily.loading{opacity:.7}
+body.theme-light .rashi-focus,body.theme-light .rashi-item{background:rgba(255,255,255,.94)}
+body.theme-light .rashi-head,body.theme-light .rashi-head .name,body.theme-light .rashi-head .chev{color:#1A1208}
+body.theme-light .rashi-head .meta,body.theme-light .rashi-body .pred,body.theme-light .rashi-body .daily{color:rgba(26,18,8,.86)}
+body.theme-light .rashi-body .fact{background:rgba(0,0,0,.05);color:rgba(26,18,8,.75)}
+body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
+.rashi-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.rashi-card{
+  flex:0 0 min(78%,250px);padding:12px;border-radius:20px;background:rgba(255,255,255,.12);
+  border:1px solid var(--stroke-soft);min-height:140px;cursor:pointer;position:relative;overflow:hidden;
+  scroll-snap-align:start;color:var(--text);
+}
+.rashi-card .name{font-weight:700;position:relative;color:var(--text)}
+.rashi-card p{margin:7px 0;font-size:.84rem;color:var(--muted);line-height:1.4;position:relative}
+.rashi-card .lucky{font-size:.72rem;color:var(--muted2);position:relative}
+.brand-foot{text-align:center;margin:6px 0 0;color:var(--muted2);font-size:.72rem}
+.hidden{display:none !important}
+
+.cal-card{
+  --panji-maroon:#7A0F1A;
+  --panji-selected:#8B0010;
+  --panji-cream:#FFFDF8;
+  --panji-line:#E8D9C4;
+  --panji-gold:#F0C14A;
+  --panji-gold-deep:#D4AF37;
+  padding:0;margin-bottom:12px;animation:fadeUp .5s ease both;overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(255,253,248,.98),rgba(255,246,230,.94)),
+    #FFF8EC;
+  border:1px solid rgba(122,15,26,.28);
+  color:#3a2412;
+}
+.cal-card .section-title{color:#7A0F1A;padding:10px 12px 0;letter-spacing:.06em}
+.cal-banner{
+  position:relative;height:132px;overflow:hidden;
+  border-bottom:2px solid var(--panji-maroon,#7A0F1A);
+}
+.cal-banner img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transform:scale(1.04);animation:bannerDrift 14s ease-in-out infinite alternate;
+}
+@keyframes bannerDrift{from{transform:scale(1.04) translateY(0)}to{transform:scale(1.1) translateY(-3%)}}
+.cal-banner .shade{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(122,15,26,.18),rgba(40,8,12,.62));
+}
+.cal-banner .caption{
+  position:absolute;left:12px;right:12px;bottom:10px;z-index:1;
+  color:#fff7ea;text-shadow:0 2px 10px rgba(0,0,0,.45);
+}
+.cal-banner .caption strong{display:block;font-size:1.05rem;font-weight:800}
+.cal-banner .caption span{font-size:.78rem;opacity:.92}
+.cal-body{padding:10px 12px 12px}
+.cal-head{
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;
+  padding:8px 10px;border-radius:12px;
+  background:linear-gradient(180deg,#8B0010,#7A0F1A);
+  box-shadow:inset 0 1px 0 rgba(240,193,74,.22),0 4px 12px rgba(122,15,26,.25);
+}
+.cal-head h2{flex:1;margin:0;text-align:center;font-size:.98rem;font-weight:800;color:#FFF8EC;letter-spacing:.02em}
+.icon-btn{
+  width:34px;height:34px;border-radius:50%;border:2px solid #F0C14A;
+  background:radial-gradient(circle at 35% 30%,#FFE08A,#F0C14A 55%,#D4AF37);
+  color:#7A0F1A;font-size:1.2rem;font-weight:800;cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);
+  display:inline-flex;align-items:center;justify-content:center;line-height:1;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.icon-btn:hover{transform:scale(1.05);box-shadow:0 3px 10px rgba(0,0,0,.22)}
+.icon-btn:active{transform:scale(.96)}
+.cal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cal-actions button{
+  height:40px;border-radius:14px;border:1px solid rgba(122,15,26,.28);
+  background:rgba(122,15,26,.06);color:#7A0F1A;font:inherit;font-weight:700;cursor:pointer;
+}
+.cal-actions .primary{background:linear-gradient(180deg,#8B0010,#7A0F1A);color:#fff8ef;border-color:transparent}
+.panji-wrap{
+  border-radius:10px;overflow:auto;border:1px solid var(--panji-line,#E8D9C4);
+  background:var(--panji-cream,#FFFDF8);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);
+}
+.panji-grid{display:grid;gap:1px;background:var(--panji-line,#E8D9C4);min-width:100%}
+.panji-grid.cols{grid-template-columns:repeat(7,minmax(0,1fr))}
+.panji-grid.rows{grid-template-columns:48px repeat(6,minmax(46px,1fr))}
+.panji-hd{
+  text-align:center;font-size:.62rem;font-weight:800;padding:7px 2px;
+  color:#FFF8EC;background:linear-gradient(180deg,#8B0010,#7A0F1A);
+  letter-spacing:.02em;
+}
+.vaar-rail{
+  font-size:.56rem;font-weight:800;padding:4px 2px;text-align:center;
+  background:linear-gradient(180deg,#8B0010,#7A0F1A);color:#FFF8EC;
+  display:flex;align-items:center;justify-content:center;
+}
+.panji-cell{
+  position:relative;min-height:68px;padding:6px 3px 4px;border:0;background:var(--panji-cream,#FFFDF8);
+  color:#3a2412;font:inherit;text-align:center;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  transition:background .15s ease,color .15s ease,transform .12s ease;
+}
+.panji-cell:active{transform:scale(.98)}
+.panji-cell:focus-visible{outline:2px solid var(--panji-gold,#F0C14A);outline-offset:-2px;z-index:2}
+.panji-cell.empty{opacity:.28;pointer-events:none;background:#F5EBDC}
+.panji-cell.selected{
+  outline:none;z-index:1;
+  background:var(--panji-selected,#8B0010);
+  box-shadow:inset 0 0 0 1px rgba(240,193,74,.45);
+}
+.panji-cell.selected .num{color:#fff}
+.panji-cell.selected .mark-icon{filter:drop-shadow(0 0 2px rgba(255,255,255,.35))}
+.panji-cell.today:not(.selected){box-shadow:inset 0 0 0 2px rgba(212,175,55,.75)}
+.panji-cell .num{
+  font-size:1.08rem;font-weight:800;line-height:1.1;color:#7A0F1A;
+  font-family:var(--content-font),var(--ui-font),sans-serif;
+}
+.panji-cell .tithi,.panji-cell .nak{display:none}
+.panji-cell .marks{
+  display:flex;gap:2px;margin-top:auto;min-height:20px;
+  align-items:center;justify-content:center;flex-wrap:wrap;
+  padding-bottom:1px;
+}
+.mark-icon{
+  width:20px;height:20px;object-fit:contain;display:block;
+  flex:0 0 auto;
+}
+@media (max-width:380px){
+  .panji-cell{min-height:62px;padding:4px 2px 3px}
+  .panji-cell .num{font-size:.98rem}
+  .mark-icon{width:18px;height:18px}
+}
+.panji-cell.fest{background:#FFF6E0}
+.panji-cell.weekend .num{color:#7A0F1A}
+.panji-cell.selected.weekend .num{color:#fff}
+.legend{
+  display:flex;flex-direction:column;gap:0;margin-top:10px;
+  border-radius:10px;overflow:hidden;
+  border:1px solid rgba(122,15,26,.22);
+  background:linear-gradient(180deg,#FFFDF8,#FFF4E4);
+}
+.legend-title{
+  margin:0;padding:7px 10px;font-size:.7rem;font-weight:800;letter-spacing:.04em;
+  color:#FFF8EC;background:linear-gradient(180deg,#8B0010,#7A0F1A);
+}
+.legend-rows{display:flex;flex-direction:column}
+.legend-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;font-size:.78rem;font-weight:700;color:#5a2010;
+  border-top:1px solid var(--panji-line,#E8D9C4);
+}
+.legend-row img{width:22px;height:22px;object-fit:contain;flex:0 0 auto}
+.legend-row span{flex:1;min-width:0}
+
+/* Regional parchment accents — keep Agal maroon chrome; tint fest cells only */
+.panji.bengali .panji-cell.fest:not(.selected){background:#eefbeb}
+.panji.malayalam .panji-wrap{background:#FFFDF8}
+.panji.punjabi .cal-actions .primary{background:linear-gradient(180deg,#0f9a4a,#0a7a3a)}
+.panji.gujarati .cal-actions .primary{background:linear-gradient(180deg,#e0b020,#c49210)}
+.panji.himalayan .cal-actions .primary,.panji.himachali .cal-actions .primary,.panji.kashmiri .cal-actions .primary{background:linear-gradient(180deg,#3a6fb0,#2a5f9e)}
+
+/* Mobile day sheet */
+.sheet{
+  position:fixed;inset:0;z-index:50;display:none;flex-direction:column;
+  background:rgba(8,12,28,.55);backdrop-filter:blur(8px);
+}
+.sheet.open{display:flex}
+.sheet-panel{
+  margin-top:auto;max-height:92vh;overflow:auto;border-radius:28px 28px 0 0;
+  background:linear-gradient(180deg,rgba(40,60,110,.92),rgba(16,24,48,.96));
+  border:1px solid var(--stroke);padding:10px 12px 24px;
+  animation:slideUp .28s ease;
+  color:var(--text);
+}
+.sheet-grab{width:42px;height:5px;border-radius:999px;background:rgba(255,255,255,.35);margin:4px auto 10px}
+.sheet-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.sheet-bar button{
+  height:36px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.16);color:var(--text);font:inherit;font-weight:700;cursor:pointer;
+}
+.sheet-body .hero{margin:0 0 10px}
+@media (min-width:960px){
+  .sheet{position:static;display:none !important}
+}
+</style>
+</head>
+<body>
+<div id="bgArt"></div>
+<div class="app">
+  <div class="topbar glass">
+    <div class="field"><label id="lblState"></label><select id="state"></select></div>
+    <div class="field date-wrap">
+      <label id="lblDate">Date</label>
+      <div class="date-field">
+        <input id="date" type="date" lang="mr-IN">
+        <span id="dateDisplay" class="date-display" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="field btn-wrap"><label>&nbsp;</label><button id="btn" type="button">…</button></div>
+  </div>
+  <input id="lat" class="hidden" type="hidden" value="12.9716">
+  <input id="lon" class="hidden" type="hidden" value="77.5946">
+  <input id="lang" class="hidden" type="hidden" value="kn">
+
+  <div class="desk">
+    <aside>
+      <div class="glass cal-card panji" id="calendarPanel">
+        <div class="cal-banner" id="stateBanner">
+          <img id="stateArt" src="/assets/states/state-MH.png" alt="">
+          <div class="shade"></div>
+          <div class="caption">
+            <strong id="bannerState"></strong>
+            <span id="bannerStyle"></span>
+          </div>
+        </div>
+        <div class="cal-body">
+          <div class="section-title" id="calSectionTitle"></div>
+          <div class="cal-head">
+            <button type="button" class="icon-btn" id="prevMonth" aria-hidden="true">‹</button>
+            <h2 id="calTitle"></h2>
+            <button type="button" class="icon-btn" id="nextMonth" aria-hidden="true">›</button>
+          </div>
+          <div class="panji-wrap" id="panjiWrap"></div>
+          <div class="legend" id="calLegend"></div>
+          <div class="cal-actions">
+            <button type="button" id="btnToday"></button>
+            <button type="button" class="primary" id="btnCalLoad"></button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="desk-main" id="dayPanel">
+      <section class="glass hero" id="hero">
+        <div class="hero-orb" id="heroOrb"></div>
+        <h1 class="place" id="title"></h1>
+        <p class="hero-date" id="heroDate"></p>
+        <div class="hero-main" id="heroMain">—</div>
+        <div class="hero-sub" id="heroSub"></div>
+        <div class="hero-meta" id="heroMeta"></div>
+        <div class="status-pill" id="status"></div>
+      </section>
+      <section class="glass" style="padding:12px;margin-bottom:12px" id="hoursWrap">
+        <div class="section-title" id="hoursTitle"></div>
+        <div class="h-scroll" id="hours"></div>
+      </section>
+      <section class="widgets" id="widgets"></section>
+      <section id="r"></section>
+      <section id="h"></section>
+      <p class="brand-foot" id="subtitle"></p>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="daySheet" aria-hidden="true">
+  <div class="sheet-panel">
+    <div class="sheet-grab"></div>
+    <div class="sheet-bar">
+      <strong id="sheetTitle"></strong>
+      <button type="button" id="sheetClose"></button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<script src="/i18n.js?v=panji-art2"></script>
+<script src="/locale-extras.js?v=4"></script>
+<script src="/state-options.js?v=8"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const I = window.I18N;
+const STATE_CODES = Object.keys(I.stateLang || {}).sort();
+let viewYear = new Date().getFullYear();
+let viewMonth = new Date().getMonth() + 1;
+let monthDays = [];
+let calLayout = "col_weekday";
+let calStyle = "hindu";
+let lastPayload = null;
+let skyTone = "day";
+
+function lang() {
+  return I.stateLang[$("state").value] || "kn";
+}
+function ui() { return I.ui[lang()] || I.ui.hi; }
+function N(value) {
+  // Convert Western digits → regional script digits (never leave English 0-9 in UI copy).
+  if (value == null) return "—";
+  const L = lang();
+  const digits = I.digits[L];
+  if (!digits) return String(value);
+  return String(value).replace(/[0-9]/g, (d) => digits[Number(d)]);
+}
+function localizeTime(value) {
+  if (value == null || value === "") return "—";
+  const map = I.ampm[lang()] || I.ampm.hi;
+  return N(String(value).replace(/\bAM\b/gi, map.AM).replace(/\bPM\b/gi, map.PM));
+}
+function localizeDate(iso) {
+  if (!iso) return "—";
+  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return N(iso);
+  const months = I.months[lang()] || I.months.hi;
+  return N(`${Number(m[3])} ${months[Number(m[2]) - 1]} ${m[1]}`);
+}
+function pad2(n) { return String(n).padStart(2, "0"); }
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+function shortTerm(s) {
+  if (!s) return "";
+  const parts = String(s).trim().split(/\s+/);
+  const last = parts[parts.length - 1];
+  return Array.from(last).slice(0, 8).join("");
+}
+function term(arrOrMap, key, fallback) {
+  if (!arrOrMap) return fallback || "—";
+  const v = arrOrMap[key];
+  return v != null && v !== "" ? v : (fallback || "—");
+}
+function isMobile() { return window.matchMedia("(max-width: 959px)").matches; }
+
+function stateArtUrl(code) {
+  // Map territories / missing art packs to the closest available state artwork.
+  const fallback = {
+    LD: "KL",
+    PY: "TN",
+    AN: "GA",
+    CH: "DL",
+    LA: "JK",
+    DN: "GJ",
+    SK: "UK",
+    TR: "AS",
+    MN: "AS",
+    ML: "AS",
+    MZ: "AS",
+    NL: "AS",
+    AR: "AS",
+  };
+  const key = fallback[code] || code;
+  const known = new Set([
+    "AP","AS","BR","CG","DL","GA","GJ","HP","HR","JH","JK","KA","KL","MH",
+    "MP","OD","PB","RJ","TN","TS","UK","UP","WB",
+  ]);
+  const use = known.has(key) ? key : "MH";
+  return `/assets/states/state-${use}.png`;
+}
+
+function applyStateArt() {
+  const code = $("state").value;
+  const url = stateArtUrl(code);
+  const img = $("stateArt");
+  const fallbackArt = "/assets/hero-sky.png";
+  img.onerror = () => { img.onerror = null; img.src = fallbackArt; };
+  img.src = `${url}?v=1`;
+  const name = nativeStateName(code);
+  $("bannerState").textContent = name;
+  $("bannerStyle").textContent = styleLabel();
+  $("bgArt").style.backgroundImage = `url("${url}?v=1")`;
+  const orb = $("heroOrb");
+  if (orb) {
+    orb.style.backgroundImage = `url("${url}?v=1")`;
+    // If image fails, soft-fallback via probe
+    const probe = new Image();
+    probe.onerror = () => { orb.style.backgroundImage = `url("${fallbackArt}")`; };
+    probe.src = `${url}?v=1`;
+  }
+}
+
+function styleLabel() {
+  const style = I.stateStyle[$("state").value] || calStyle || "";
+  const map = {
+    odia: "ଓଡ଼ିଆ ପଞ୍ଜି",
+    bengali: "বাংলা পঞ্জিকা",
+    assamese: "অসমীয়া পঞ্জিকা",
+    marathi: "मराठी पंचांग",
+    gujarati: "ગુજરાતી પંચાંગ",
+    rajasthani: "राजस्थानी पंचांग",
+    punjabi: "ਪੰਜਾਬੀ ਕੈਲੰਡਰ",
+    tamil: "தமிழ் பஞ்சாங்கம்",
+    malayalam: "മലയാളം പഞ്ചാംഗം",
+    kannada: "ಕನ್ನಡ ಪಂಚಾಂಗ",
+    telugu: "తెలుగు పంచాంగం",
+    hindu: "हिन्दू पंचांग",
+    hindi: "हिन्दी पंचांग",
+    maithili: "मैथिली पंचांग",
+    tribal: "क्षेत्रीय पंचांग",
+    himalayan: "हिमालयी पंचांग",
+    himachali: "हिमाचली पंचांग",
+    kashmiri: "कश्मीरी पंचांग",
+    konkani: "कोंकणी पंचांग",
+  };
+  return map[style] || (ui().calendar || ui().title);
+}
+
+function applyStateArt() {
+  const code = $("state").value;
+  const url = stateArtUrl(code);
+  const img = $("stateArt");
+  img.onerror = () => { img.onerror = null; img.src = "/assets/hero-sky.png"; };
+  img.src = `${url}?v=1`;
+  const name = nativeStateName(code);
+  $("bannerState").textContent = name;
+  $("bannerStyle").textContent = styleLabel();
+  // Soft ambient background also follows state art
+  $("bgArt").style.backgroundImage = `url("${url}?v=1")`;
+}
+
+function applyFont() {
+  // Regional script fonts apply ONLY to calendar/content via --content-font.
+  // Body + drawer stay on Latin UI font forever (fixes Hindi glyph bleed in menu).
+  const L = lang();
+  const fam = I.fonts[L] || null;
+  document.documentElement.style.setProperty(
+    "--content-font",
+    fam ? `"${fam}", var(--ui-font)` : "var(--ui-font)"
+  );
+  document.body.style.fontFamily = "var(--ui-font)";
+  document.documentElement.lang = "en";
+  document.body.dataset.scriptLang = L || "";
+}
+function applyInk(tone) {
+  skyTone = tone;
+  window.skyTone = tone;
+  if (document.body.classList.contains("theme-light")) {
+    // Keep high-contrast dark ink on parchment; do not wash with sky whites.
+    const root = document.documentElement.style;
+    root.setProperty("--text", "#1A1208");
+    root.setProperty("--muted", "rgba(26,18,8,.78)");
+    root.setProperty("--muted2", "rgba(26,18,8,.62)");
+    root.setProperty("--ink", "#1A1208");
+    root.setProperty("--ink-soft", "rgba(26,18,8,.86)");
+    root.setProperty("--fest", "#7C2D12");
+    root.setProperty("--good", "#0b6b3c");
+    root.setProperty("--bad", "#a11d28");
+    root.setProperty("--panel-bg", "rgba(255,253,248,.96)");
+    root.setProperty("--glass", "rgba(255,253,248,.94)");
+    root.setProperty("--state-accent", "#9c3d24");
+    return;
+  }
+  // Adaptive ink on dark glass: always bright text so glyphs stay readable
+  const ink = {
+    day: { text: "#ffffff", muted: "rgba(255,255,255,.9)", fest: "#fff3b0", ink: "#ffffff", soft: "rgba(255,255,255,.9)" },
+    evening: { text: "#fff8f2", muted: "rgba(255,245,235,.9)", fest: "#ffd28a", ink: "#fff8f2", soft: "rgba(255,245,235,.9)" },
+    dusk: { text: "#fff6ff", muted: "rgba(255,245,255,.9)", fest: "#ffd6ff", ink: "#fff8ff", soft: "rgba(255,245,255,.9)" },
+    night: { text: "#f2f7ff", muted: "rgba(230,240,255,.9)", fest: "#c9e4ff", ink: "#f5f9ff", soft: "rgba(230,240,255,.9)" },
+  }[tone] || {
+    text: "#ffffff", muted: "rgba(255,255,255,.9)", fest: "#ffe08a", ink: "#ffffff", soft: "rgba(255,255,255,.9)",
+  };
+  const root = document.documentElement.style;
+  root.setProperty("--text", ink.text);
+  root.setProperty("--muted", ink.muted);
+  root.setProperty("--muted2", "rgba(255,255,255,.72)");
+  root.setProperty("--ink", ink.ink);
+  root.setProperty("--ink-soft", ink.soft);
+  root.setProperty("--fest", ink.fest);
+  root.setProperty("--good", "#8dffc4");
+  root.setProperty("--bad", "#ffb0bd");
+  root.setProperty("--panel-bg", "rgba(8,22,48,.82)");
+  root.setProperty("--glass", "rgba(10,24,52,.78)");
+  root.setProperty("--state-accent", "#ffc978");
+}
+window.applyInk = applyInk;
+
+function nativeStateLang(code) {
+  return I.stateLang[code] || null;
+}
+
+/** Each state label in its own regional script (MH→Marathi, TN→Tamil, …). */
+function nativeStateName(code) {
+  // Prefer authoritative native map first (never translate into current UI language).
+  if (window.NATIVE_STATE_NAMES && window.NATIVE_STATE_NAMES[code]) {
+    return window.NATIVE_STATE_NAMES[code];
+  }
+  const L = nativeStateLang(code);
+  if (L && I.states[L] && I.states[L][code]) return I.states[L][code];
+  for (const lang of Object.keys(I.states || {})) {
+    if (I.states[lang][code]) return I.states[lang][code];
+  }
+  return code;
+}
+
+function fillStateOptions() {
+  const sel = $("state");
+  const cur = sel.value || "MH";
+  const codes = [
+    ...new Set([
+      ...Object.keys(window.NATIVE_STATE_NAMES || {}),
+      ...STATE_CODES,
+      ...Object.keys(I.stateLang || {}),
+    ]),
+  ].sort();
+  sel.innerHTML = codes
+    .map((code) => {
+      const name = nativeStateName(code);
+      if (!name) return "";
+      const optLang = nativeStateLang(code) || "en";
+      return `<option value="${code}" lang="${optLang}">${name}</option>`;
+    })
+    .filter(Boolean)
+    .join("");
+  if (codes.includes(cur)) sel.value = cur;
+  else sel.value = codes.includes("MH") ? "MH" : codes[0] || "";
+  $("lang").value = lang();
+}
+
+function sceneAssets(p) {
+  const t = p.panchang.tithi.index || 1;
+  if (t === 15) return { main: "/assets/moon-full.png", orb: "/assets/moon-full.png", sky: "dusk" };
+  if (t === 30) return { main: "/assets/twilight-veil.png", orb: "/assets/moon-glow.png", sky: "night" };
+  if (t < 15) return { main: "/assets/moon-glow.png", orb: "/assets/moon-glow.png", sky: "day" };
+  return { main: "/assets/hero-sky.png", orb: "/assets/moon-full.png", sky: "evening" };
+}
+function applySky(tone, art) {
+  // Ambient background stays state art; only ink/theme adapt to lunar tone
+  const skies = {
+    day: "linear-gradient(180deg,#6eb6ff 0%,#3a8fd6 40%,#1f5fa8 100%)",
+    evening: "linear-gradient(180deg,#ff9a5a 0%,#d96a4a 35%,#4a3a8a 78%,#1a2048 100%)",
+    dusk: "linear-gradient(180deg,#f0c27a 0%,#8b5a9b 45%,#2a2a6a 100%)",
+    night: "linear-gradient(180deg,#2a3a6a 0%,#121a38 55%,#070b18 100%)",
+  };
+  let el = document.getElementById("skyDyn");
+  if (!el) { el = document.createElement("style"); el.id = "skyDyn"; document.head.appendChild(el); }
+  el.textContent = `body::before{background:${skies[tone] || skies.day}}`;
+  applyInk(tone);
+  const theme = { day: "#3a8fd6", evening: "#d96a4a", dusk: "#8b5a9b", night: "#121a38" };
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme[tone] || theme.day);
+}
+
+const PANJI_ICON = {
+  amavasya: "/assets/panji/moon/new.svg",
+  purnima: "/assets/panji/moon/full.svg",
+  ekadashi: "/assets/panji/deity-vishnu.svg",
+  goddess: "/assets/panji/deity-goddess.svg",
+  nandi: "/assets/panji/nandi.svg",
+  planet: "/assets/panji/planet-tilak.svg",
+  star: "/assets/panji/star-kiruthigai.svg",
+};
+const MOON_PHASE_ICON = [
+  "/assets/panji/moon/new.svg",
+  "/assets/panji/moon/waxing-crescent.svg",
+  "/assets/panji/moon/first-quarter.svg",
+  "/assets/panji/moon/waxing-gibbous.svg",
+  "/assets/panji/moon/full.svg",
+  "/assets/panji/moon/waning-gibbous.svg",
+  "/assets/panji/moon/last-quarter.svg",
+  "/assets/panji/moon/waning-crescent.svg",
+];
+let monthFestivalsByDate = {};
+
+function moonPhaseSrc(tithiIndex) {
+  const t = Math.max(1, Math.min(30, Number(tithiIndex) || 1));
+  // Map 1..30 across 8 phase images (Amavasya≈30/1, Purnima≈15)
+  if (t === 30 || t === 1) return MOON_PHASE_ICON[0];
+  if (t === 15) return MOON_PHASE_ICON[4];
+  const idx = Math.min(7, Math.floor(((t - 1) / 30) * 8));
+  return MOON_PHASE_ICON[idx];
+}
+function nakshatraSrc(nakIndex) {
+  const n = Math.max(1, Math.min(27, Number(nakIndex) || 1));
+  return `/assets/panji/nakshatra/${String(n).padStart(2, "0")}.svg`;
+}
+function festivalIconSrc(events) {
+  if (!events?.length) return null;
+  const blob = events
+    .map((e) => `${e.id || ""} ${e.names?.en || ""} ${e.names?.hi || ""}`.toLowerCase())
+    .join(" ");
+  const rules = [
+    [/diwali|deepavali|kali\s*puja|naraka/, "diwali"],
+    [/sankranti|pongal|makar|bih|lohri|vishu/, "sankranti"],
+    [/holi|dol\s*purnima|dhuliyandan|rang/, "holi"],
+    [/ganesh|vinayak|ganapati/, "ganesh"],
+    [/navratri|durga|dashami|vijaya/, "navratri"],
+    [/durga|kali(?!\s*puja)/, "durga"],
+    [/shiv|mahasiv|shivaratri|pradosh/, "shiv"],
+    [/krishna|janmashtami|jayanti.*krish/, "krishna"],
+    [/ram|ramanavami|sita/, "rama"],
+    [/ekadashi/, "default"],
+  ];
+  for (const [re, key] of rules) {
+    if (re.test(blob)) return `/assets/panji/festival/${key}.svg`;
+  }
+  return "/assets/panji/festival/default.svg";
+}
+
+const VRATA_TITLE = {
+  ta: "விரத தினங்கள்",
+  te: "వ్రత దినాలు",
+  kn: "ವ್ರತ ದಿನಗಳು",
+  hi: "व्रत दिन",
+  mr: "व्रत दिवस",
+  gu: "વ્રત દિવસો",
+  bn: "ব্রত দিন",
+  or: "ବ୍ରତ ଦିନ",
+  as: "ব্রতৰ দিন",
+  pa: "ਵਰਤ ਦਿਨ",
+  ml: "വ്രത ദിനങ്ങൾ",
+  sa: "व्रतदिनानि",
+  en: "Vrata days",
+};
+
+function panjiIconImg(src, alt) {
+  return `<img class="mark-icon" src="${src}" alt="${alt}" width="20" height="20" loading="lazy" decoding="async">`;
+}
+
+/** Every day: moon phase + nakshatra picture; festivals add a festival picture. */
+function panjiIconList(day) {
+  if (!day) return [];
+  const icons = [];
+  const push = (src, alt) => {
+    if (!src) return;
+    if (icons.some((x) => x.src === src)) return;
+    icons.push({ src, alt });
+  };
+  const marks = day.marks || [];
+  // Moon sign / phase picture for every day
+  if (marks.includes("amavasya")) push(PANJI_ICON.amavasya, "amavasya");
+  else if (marks.includes("purnima")) push(PANJI_ICON.purnima, "purnima");
+  else push(moonPhaseSrc(day.tithi_index), "moon");
+
+  // Nakshatra (moon mansion) picture for every day
+  push(nakshatraSrc(day.nakshatra_index), "nakshatra");
+
+  // Festival picture when present
+  const fest = monthFestivalsByDate[day.date];
+  const festSrc = festivalIconSrc(fest);
+  if (festSrc) push(festSrc, "festival");
+  else if (marks.includes("ekadashi")) push(PANJI_ICON.ekadashi, "ekadashi");
+
+  return icons.slice(0, 3);
+}
+
+function marksHtml(day) {
+  return panjiIconList(day)
+    .map((x) => panjiIconImg(x.src, x.alt))
+    .join("");
+}
+
+function cellHtml(day) {
+  if (!day) return `<button type="button" class="panji-cell empty" disabled></button>`;
+  const icons = panjiIconList(day);
+  const festTitle = (monthFestivalsByDate[day.date] || [])
+    .map((e) => e.names?.en || e.id)
+    .filter(Boolean)
+    .join(", ");
+  const cls = ["panji-cell"];
+  if (day.date === $("date").value) cls.push("selected");
+  if (day.date === todayIso()) cls.push("today");
+  if (day.vaar_index === 0 || day.vaar_index === 6) cls.push("weekend");
+  if (icons.length || (day.marks || []).length || festTitle) cls.push("fest");
+  return `<button type="button" class="${cls.join(" ")}" data-iso="${day.date}" title="${festTitle || ""}">
+    <span class="num">${N(day.day)}</span>
+    <span class="marks">${marksHtml(day)}</span>
+  </button>`;
+}
+
+function renderPanjiGrid() {
+  const L = lang();
+  const vaar = I.vaar[L] || I.vaar.hi;
+  const byDay = Object.fromEntries(monthDays.map((d) => [d.day, d]));
+  const firstDow = new Date(viewYear, viewMonth - 1, 1).getDay();
+  const total = new Date(viewYear, viewMonth, 0).getDate();
+  const panel = $("calendarPanel");
+  panel.className = `glass cal-card panji ${calStyle}`;
+
+  if (calLayout === "row_weekday") {
+    const weeks = Math.ceil((firstDow + total) / 7);
+    let html = `<div class="panji-grid rows"><div class="panji-hd"></div>`;
+    for (let w = 1; w <= weeks; w++) html += `<div class="panji-hd">${N(w)}</div>`;
+    for (let v = 0; v < 7; v++) {
+      html += `<div class="vaar-rail">${Array.from(vaar[v] || "").slice(0, 3).join("")}</div>`;
+      for (let w = 0; w < weeks; w++) {
+        const idx = w * 7 + v - firstDow + 1;
+        html += cellHtml(idx >= 1 && idx <= total ? byDay[idx] : null);
+      }
+    }
+    html += `</div>`;
+    $("panjiWrap").innerHTML = html;
+  } else {
+    let html = `<div class="panji-grid cols">${vaar.map((v) => `<div class="panji-hd">${Array.from(v).slice(0, 2).join("")}</div>`).join("")}`;
+    for (let i = 0; i < firstDow; i++) html += cellHtml(null);
+    for (let d = 1; d <= total; d++) html += cellHtml(byDay[d]);
+    html += `</div>`;
+    $("panjiWrap").innerHTML = html;
+  }
+
+  $("panjiWrap").querySelectorAll("button[data-iso]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      $("date").value = btn.dataset.iso;
+      renderPanjiGrid();
+      await loadAll();
+      if (isMobile()) openSheet();
+    });
+  });
+}
+
+async function loadMonthGrid() {
+  const u = ui();
+  const months = I.months[lang()] || I.months.hi;
+  $("calSectionTitle").textContent = u.calendar || u.date;
+  $("calTitle").textContent = `${months[viewMonth - 1]} ${N(viewYear)}`;
+  $("btnToday").textContent = u.today;
+  $("btnCalLoad").textContent = u.calculate;
+  const tithiArr = I.tithi[lang()] || I.tithi.hi;
+  const vrataTitle = VRATA_TITLE[lang()] || VRATA_TITLE.hi;
+  const nakLabel = u.nakshatra || "Nakshatra";
+  const festLabel = u.festival || VRATA_TITLE[lang()] || "Festival";
+  $("calLegend").innerHTML = `
+    <div class="legend-title">${vrataTitle}</div>
+    <div class="legend-rows">
+      <div class="legend-row">${panjiIconImg(MOON_PHASE_ICON[0], "amavasya")}<span>${shortTerm(tithiArr[29])}</span></div>
+      <div class="legend-row">${panjiIconImg(MOON_PHASE_ICON[4], "purnima")}<span>${shortTerm(tithiArr[14])}</span></div>
+      <div class="legend-row">${panjiIconImg(nakshatraSrc(4), "nakshatra")}<span>${nakLabel}</span></div>
+      <div class="legend-row">${panjiIconImg("/assets/panji/festival/default.svg", "festival")}<span>${festLabel}</span></div>
+    </div>`;
+  try {
+    const qs = new URLSearchParams({
+      state_code: $("state").value,
+      year: String(viewYear),
+      month: String(viewMonth),
+      timezone: "Asia/Kolkata",
+    });
+    const festQs = new URLSearchParams({
+      state_code: $("state").value,
+      year: String(viewYear),
+      month: String(viewMonth),
+      timezone: "Asia/Kolkata",
+      lat: $("lat").value,
+      lon: $("lon").value,
+    });
+    const [data, festData] = await Promise.all([
+      fetch(`/api/v1/calendar/month?${qs}`).then((r) => r.json()),
+      fetch(`/api/v1/festivals?${festQs}`)
+        .then((r) => (r.ok ? r.json() : { events: [] }))
+        .catch(() => ({ events: [] })),
+    ]);
+    monthFestivalsByDate = {};
+    (festData.events || []).forEach((e) => {
+      if (!e?.date) return;
+      (monthFestivalsByDate[e.date] ??= []).push(e);
+    });
+    monthDays = data.days || [];
+    calLayout = data.layout || "col_weekday";
+    calStyle = data.calendar_style || I.stateStyle[$("state").value] || "hindu";
+    applyStateArt();
+    renderPanjiGrid();
+  } catch (e) {
+    $("panjiWrap").innerHTML = `<div style="padding:12px;color:var(--muted)">${u.error}</div>`;
+  }
+}
+
+function syncDateDisplay() {
+  const el = $("dateDisplay");
+  const input = $("date");
+  if (!el || !input?.value) return;
+  el.textContent = localizeDate(input.value);
+  const L = lang();
+  const bcp = {
+    hi: "hi-IN", mr: "mr-IN", kn: "kn-IN", ta: "ta-IN", te: "te-IN",
+    or: "or-IN", bn: "bn-IN", as: "as-IN", pa: "pa-IN", gu: "gu-IN", ml: "ml-IN",
+  };
+  input.lang = bcp[L] || "en-IN";
+}
+
+function applyChrome() {
+  const u = ui();
+  $("lang").value = lang();
+  const stateName = nativeStateName($("state").value) || u.title;
+  $("title").textContent = stateName;
+  $("subtitle").textContent = u.subtitle;
+  document.title = u.title;
+  $("lblState").textContent = u.state;
+  if ($("lblDate")) $("lblDate").textContent = u.date || "";
+  $("btn").textContent = u.calculate;
+  $("sheetClose").textContent = u.complete;
+  applyFont();
+  fillStateOptions();
+  applyStateArt();
+  syncDateDisplay();
+  loadMonthGrid();
+  window.__localizeShell?.();
+}
+
+function localizePanchang(p) {
+  const L = lang();
+  return {
+    tithi: (I.tithi[L] || I.tithi.hi)[(p.panchang.tithi.index || 1) - 1],
+    nakshatra: (I.nakshatra[L] || I.nakshatra.hi)[(p.panchang.nakshatra.index || 1) - 1],
+    pada: p.panchang.nakshatra.pada,
+    yoga: (I.yoga[L] || I.yoga.hi)[(p.panchang.yoga.index || 1) - 1],
+    karana: (I.karana[L] || I.karana.hi)[p.panchang.karana.name] || (I.karana.hi[p.panchang.karana.name]),
+    vaar: (I.vaar[L] || I.vaar.hi)[p.panchang.vaar.index ?? 0],
+    system: (I.systems[L] || I.systems.hi)[p.regional.system] || (I.systems.hi[p.regional.system]),
+  };
+}
+
+function hourCards(list, table, icon) {
+  if (!list?.length) return "";
+  const u = ui();
+  return list.map((x) => {
+    const name = table[x.name] || (I.choghadiya.hi && I.choghadiya.hi[x.name]) || (I.gowri.hi && I.gowri.hi[x.name]) || "—";
+    const good = x.nature === "Good" || x.nature === u.good;
+    const t = localizeTime(x.time).split(" - ")[0] || localizeTime(x.time);
+    return `<button type="button" class="hour-card ${good ? "good" : "bad"}" data-detail="${name}|${localizeTime(x.time)}">
+      <div class="t">${t}</div><img src="${icon}" alt=""><div class="v">${name}</div>
+    </button>`;
+  }).join("");
+}
+
+function listCard(title, list, table) {
+  if (!list?.length) return "";
+  const u = ui();
+  return `<div class="glass list-card"><div class="section-title" style="padding-top:8px">${title}</div>${list.map((x) => {
+    const name = table[x.name] || "—";
+    const good = x.nature === "Good" || x.nature === u.good;
+    return `<div class="list-row" data-detail="${name}|${localizeTime(x.time)}"><span class="${good ? "good" : "bad"}">${name}</span><span class="time">${localizeTime(x.time)}</span></div>`;
+  }).join("")}</div>`;
+}
+
+function renderDayHtml(p, loc, scene) {
+  const u = ui();
+  const L = lang();
+  const stateName = nativeStateName(p.state_code) || (I.states[L] || {})[p.state_code] || u.title;
+  const gowri = p.regional.gowri_panchangam || [];
+  const chog = p.regional.choghadiya_day || [];
+  const strip = gowri.length ? gowri : chog;
+  const stripTable = gowri.length ? (I.gowri[L] || {}) : (I.choghadiya[L] || {});
+  return {
+    hero: {
+      stateName,
+      date: localizeDate(p.date),
+      tithi: loc.tithi,
+      sub: `${loc.nakshatra} · ${u.pada} ${N(loc.pada)}`,
+      meta: `${loc.vaar} · ${loc.yoga}`,
+      orb: scene.orb,
+    },
+    hoursTitle: gowri.length ? u.gowri : u.choghadiya,
+    hours: hourCards(strip, stripTable, scene.orb),
+    widgets: `
+      <button type="button" class="glass widget" data-detail="${u.sunrise}|${localizeTime(p.panchang.sunrise)}"><div class="lbl"><img src="/assets/sun-rise.png" alt="">${u.sunrise}</div><div class="val">${localizeTime(p.panchang.sunrise)}</div></button>
+      <button type="button" class="glass widget" data-detail="${u.sunset}|${localizeTime(p.panchang.sunset)}"><div class="lbl"><img src="/assets/twilight-veil.png" alt="">${u.sunset}</div><div class="val">${localizeTime(p.panchang.sunset)}</div></button>
+      <button type="button" class="glass widget" data-detail="${u.abhijit}|${localizeTime(p.auspicious_timings.abhijit_muhurat)}"><div class="lbl"><img src="/assets/sun-rise.png" alt="">${u.abhijit}</div><div class="val">${localizeTime(p.auspicious_timings.abhijit_muhurat)}</div></button>
+      <button type="button" class="glass widget" data-detail="${u.rahu_kalam}|${localizeTime(p.inauspicious_timings.rahu_kalam)}"><div class="lbl"><img src="/assets/twilight-veil.png" alt="">${u.rahu_kalam}</div><div class="val">${localizeTime(p.inauspicious_timings.rahu_kalam)}</div></button>
+      <button type="button" class="glass widget" data-detail="${u.karana}|${loc.karana}"><div class="lbl">${u.karana}</div><div class="val">${loc.karana}</div><div class="hint">${u.system}: ${loc.system}</div></button>
+      <button type="button" class="glass widget" data-detail="${u.vaar}|${loc.vaar}"><div class="lbl">${u.vaar}</div><div class="val">${loc.vaar}</div><div class="hint">${u.yoga}: ${loc.yoga}</div></button>`,
+    list: listCard(gowri.length ? u.gowri : u.choghadiya, strip, stripTable),
+  };
+}
+
+function bindDetails(root) {
+  root.querySelectorAll("[data-detail]").forEach((el) => {
+    el.addEventListener("click", () => {
+      const [title, body] = String(el.dataset.detail).split("|");
+      $("status").textContent = `${title}: ${body}`;
+    });
+  });
+}
+
+/** Horizontal strips: wheel → scroll-x, drag to pan */
+function bindStripScroll(el) {
+  if (!el || el.dataset.scrollBound === "1") return;
+  el.dataset.scrollBound = "1";
+  el.addEventListener(
+    "wheel",
+    (e) => {
+      if (el.scrollWidth <= el.clientWidth + 2) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    },
+    { passive: false }
+  );
+  let dragging = false;
+  let startX = 0;
+  let startLeft = 0;
+  el.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    dragging = true;
+    startX = e.clientX;
+    startLeft = el.scrollLeft;
+    el.setPointerCapture?.(e.pointerId);
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    el.scrollLeft = startLeft - (e.clientX - startX);
+  });
+  const endDrag = () => { dragging = false; };
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+}
+
+function refreshStripScroll() {
+  document.querySelectorAll(".h-scroll, .rashi-scroll").forEach(bindStripScroll);
+}
+
+const RASHI_SIGNS = [
+  "aries", "taurus", "gemini", "cancer", "leo", "virgo",
+  "libra", "scorpio", "sagittarius", "capricorn", "aquarius", "pisces",
+];
+const RASHI_PLANETS = [
+  "Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury",
+  "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter",
+];
+const PLANET_LOCAL = {
+  hi: { Mars: "मंगल", Venus: "शुक्र", Mercury: "बुध", Moon: "चंद्र", Sun: "सूर्य", Jupiter: "गुरु", Saturn: "शनि", Fire: "अग्नि", Earth: "पृथ्वी", Air: "वायु", Water: "जल" },
+  mr: { Mars: "मंगळ", Venus: "शुक्र", Mercury: "बुध", Moon: "चंद्र", Sun: "सूर्य", Jupiter: "गुरु", Saturn: "शनि", Fire: "अग्नि", Earth: "पृथ्वी", Air: "वायु", Water: "जल" },
+  kn: { Mars: "ಮಂಗಳ", Venus: "ಶುಕ್ರ", Mercury: "ಬುಧ", Moon: "ಚಂದ್ರ", Sun: "ಸೂರ್ಯ", Jupiter: "ಗುರು", Saturn: "ಶನಿ", Fire: "ಅಗ್ನಿ", Earth: "ಭೂಮಿ", Air: "ವಾಯು", Water: "ಜಲ" },
+  ta: { Mars: "செவ்வாய்", Venus: "சுக்கிரன்", Mercury: "புதன்", Moon: "சந்திரன்", Sun: "சூரியன்", Jupiter: "குரு", Saturn: "சனி", Fire: "நெருப்பு", Earth: "பூமி", Air: "காற்று", Water: "நீர்" },
+  te: { Mars: "కుజుడు", Venus: "శుక్రుడు", Mercury: "బుధుడు", Moon: "చంద్రుడు", Sun: "సూర్యుడు", Jupiter: "గురుడు", Saturn: "శని", Fire: "అగ్ని", Earth: "భూమి", Air: "వాయువు", Water: "జలం" },
+  ml: { Mars: "ചൊവ്വ", Venus: "ശുക്രൻ", Mercury: "ബുധൻ", Moon: "ചന്ദ്രൻ", Sun: "സൂര്യൻ", Jupiter: "വ്യാഴം", Saturn: "ശനി", Fire: "അഗ്നി", Earth: "ഭൂമി", Air: "വായു", Water: "ജലം" },
+  or: { Mars: "ମଙ୍ଗଳ", Venus: "ଶୁକ୍ର", Mercury: "ବୁଧ", Moon: "ଚନ୍ଦ୍ର", Sun: "ସୂର୍ଯ୍ୟ", Jupiter: "ଗୁରୁ", Saturn: "ଶନି", Fire: "ଅଗ୍ନି", Earth: "ପୃଥିବୀ", Air: "ବାୟୁ", Water: "ଜଳ" },
+  bn: { Mars: "মঙ্গল", Venus: "শুক্র", Mercury: "বুধ", Moon: "চন্দ্র", Sun: "সূর্য", Jupiter: "বৃহস্পতি", Saturn: "শনি", Fire: "অগ্নি", Earth: "পৃথিবী", Air: "বায়ু", Water: "জল" },
+  gu: { Mars: "મંગળ", Venus: "શુક્ર", Mercury: "બુધ", Moon: "ચંદ્ર", Sun: "સૂર્ય", Jupiter: "ગુરુ", Saturn: "શનિ", Fire: "અગ્નિ", Earth: "પૃથ્વી", Air: "વાયુ", Water: "જળ" },
+  pa: { Mars: "ਮੰਗਲ", Venus: "ਸ਼ੁੱਕਰ", Mercury: "ਬੁਧ", Moon: "ਚੰਦਰ", Sun: "ਸੂਰਜ", Jupiter: "ਬ੍ਰਹਸਪਤੀ", Saturn: "ਸ਼ਨੀ", Fire: "ਅੱਗ", Earth: "ਧਰਤੀ", Air: "ਹਵਾ", Water: "ਪਾਣੀ" },
+  as: { Mars: "মঙ্গল", Venus: "শুক্ৰ", Mercury: "বুধ", Moon: "চন্দ্ৰ", Sun: "সূৰ্য", Jupiter: "বৃহস্পতি", Saturn: "শনি", Fire: "অগ্নি", Earth: "পৃথিৱী", Air: "বায়ু", Water: "জল" },
+};
+
+function localizePlanet(term, L) {
+  return (PLANET_LOCAL[L] || PLANET_LOCAL.hi || {})[term] || term;
+}
+
+function rashiLabel(i, L) {
+  return (I.rashi[L] || I.rashi.hi)[i] || RASHI_SIGNS[i];
+}
+
+function escAttr(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderRashiPanel(h, p, u, L) {
+  const moonIdx = (() => {
+    if (p.astronomy?.moon_rashi_index) return Math.max(0, Math.min(11, p.astronomy.moon_rashi_index - 1));
+    return Math.max(0, Math.min(11, Math.floor((p.astronomy?.moon_sidereal_longitude || 0) / 30)));
+  })();
+  const sunIdx = (() => {
+    if (p.astronomy?.sun_rashi_index) return Math.max(0, Math.min(11, p.astronomy.sun_rashi_index - 1));
+    return Math.max(0, Math.min(11, Math.floor((p.astronomy?.sun_sidereal_longitude || 0) / 30)));
+  })();
+  const moonName = rashiLabel(moonIdx, L);
+  const sunName = rashiLabel(sunIdx, L);
+  const moonLbl = u.moon_sign || "Moon sign";
+  const sunLbl = u.sun_sign || "Sun sign";
+  const planetLbl = u.ruling_planet || "Ruling planet";
+  const stateName = nativeStateName($("state").value) || $("state").value;
+  const rows = (h.rashifal || []).map((x, i) => {
+    const display = x.rashi || rashiLabel(i, L);
+    const sign = x.sign || RASHI_SIGNS[i];
+    const planet = localizePlanet(x.planet || RASHI_PLANETS[i], L);
+    const element = localizePlanet(x.element || "", L);
+    const flags = [
+      i === moonIdx ? "moon-today" : "",
+      i === sunIdx ? "sun-today" : "",
+    ].filter(Boolean).join(" ");
+    const badge = i === moonIdx ? ` · ${moonLbl}` : (i === sunIdx ? ` · ${sunLbl}` : "");
+    const teaser = (x.overview || x.prediction || "").slice(0, 72);
+    return `<article class="rashi-item ${flags}" data-sign="${sign}" data-index="${i}">
+      <button type="button" class="rashi-head" aria-expanded="false">
+        <span>
+          <div class="name">${display}${badge}</div>
+          <div class="meta">${planetLbl}: ${planet}${element ? ` · ${element}` : ""} · ${u.lucky}: ${x.lucky_color || "—"} · ${N(x.lucky_number || "")}</div>
+        </span>
+        <span class="chev" aria-hidden="true">▾</span>
+      </button>
+      <div class="rashi-body">
+        <p class="pred">${escAttr(teaser)}${teaser.length >= 72 ? "…" : ""}</p>
+        <div class="facts">
+          <span class="fact">${planetLbl}: ${planet}</span>
+          ${element ? `<span class="fact">${element}</span>` : ""}
+          <span class="fact">${u.lucky}: ${x.lucky_color || "—"} · ${N(x.lucky_number || "")}</span>
+          ${i === moonIdx ? `<span class="fact">${moonLbl}</span>` : ""}
+          ${i === sunIdx ? `<span class="fact">${sunLbl}</span>` : ""}
+        </div>
+        <div class="detail-mount" data-detail-mount>…</div>
+      </div>
+    </article>`;
+  }).join("");
+  return `<div class="glass rashi-panel">
+    <div class="section-title">${u.rashifal}</div>
+    <div class="rashi-focus">
+      <span>${moonLbl}: <b>${moonName}</b></span>
+      <span>${sunLbl}: <b>${sunName}</b></span>
+      <span>${u.state || "State"}: <b>${stateName}</b></span>
+    </div>
+    <div class="rashi-list">${rows}</div>
+  </div>`;
+}
+
+function renderRashiDetailHtml(d, u, L) {
+  const planet = localizePlanet(d.planet, L);
+  const element = localizePlanet(d.element, L);
+  const st = d.state || {};
+  const section = (title, body) =>
+    body ? `<div class="block"><h4>${title}</h4><p>${escAttr(body)}</p></div>` : "";
+  return `
+    ${section(u.overview || "Overview", d.overview || d.prediction_long)}
+    ${section(u.work || "Work", d.work)}
+    ${section(u.family || "Family", d.family)}
+    ${section(u.health || "Health", d.health)}
+    ${section(u.remedy || "Remedy", d.remedy)}
+    <div class="state-box">
+      <h4>${u.state_context || "Regional panchang"}</h4>
+      <p>${escAttr(st.note || "")}</p>
+      <div class="facts" style="margin-top:8px">
+        <span class="fact">${st.system || "—"}</span>
+        <span class="fact">${st.muhurat || "—"}</span>
+        ${st.vaar ? `<span class="fact">${st.vaar}</span>` : ""}
+        ${d.is_moon_sign ? `<span class="fact">${u.moon_sign || "Moon"}</span>` : ""}
+        ${d.is_sun_sign ? `<span class="fact">${u.sun_sign || "Sun"}</span>` : ""}
+      </div>
+    </div>
+    ${section(u.daily_horoscope || "Daily", d.daily?.horoscope)}
+    ${section(u.weekly_horoscope || "Weekly", d.weekly?.horoscope)}
+    ${section(u.monthly_horoscope || "Monthly", d.monthly?.horoscope)}
+    <div class="facts" style="margin-top:10px">
+      <span class="fact">${u.ruling_planet || "Planet"}: ${planet}</span>
+      ${element ? `<span class="fact">${element}</span>` : ""}
+      <span class="fact">${u.lucky}: ${d.lucky_color || "—"} · ${N(d.lucky_number || "")}</span>
+    </div>`;
+}
+
+function bindRashiExpand(root) {
+  if (!root) return;
+  root.querySelectorAll(".rashi-item").forEach((item) => {
+    const head = item.querySelector(".rashi-head");
+    const mount = item.querySelector("[data-detail-mount]");
+    head?.addEventListener("click", async () => {
+      const opening = !item.classList.contains("open");
+      root.querySelectorAll(".rashi-item.open").forEach((el) => {
+        if (el !== item) {
+          el.classList.remove("open");
+          el.querySelector(".rashi-head")?.setAttribute("aria-expanded", "false");
+        }
+      });
+      item.classList.toggle("open", opening);
+      head.setAttribute("aria-expanded", opening ? "true" : "false");
+      if (!opening || !mount || mount.dataset.loaded === "1") return;
+      mount.classList.add("loading");
+      mount.textContent = "…";
+      try {
+        const sign = item.dataset.sign || "aries";
+        const qs = new URLSearchParams({
+          sign,
+          lang: lang(),
+          state_code: $("state").value,
+          date_str: $("date").value,
+          lat: $("lat").value,
+          lon: $("lon").value,
+          timezone: "Asia/Kolkata",
+        });
+        const d = await fetch(`/api/v1/rashifal/detail?${qs}`).then((r) => r.json());
+        mount.innerHTML = renderRashiDetailHtml(d, ui(), lang());
+        mount.dataset.loaded = "1";
+      } catch (err) {
+        mount.textContent = String(err.message || err);
+      } finally {
+        mount.classList.remove("loading");
+      }
+    });
+  });
+}
+
+function openSheet() {
+  if (!isMobile() || !lastPayload) return;
+  const { html, hero } = lastPayload;
+  $("sheetTitle").textContent = hero.stateName;
+  $("sheetBody").innerHTML = `
+    <section class="glass hero">
+      <div class="hero-orb" style="background-image:url('${stateArtUrl($("state").value)}?v=1')"></div>
+      <h1 class="place">${hero.stateName}</h1>
+      <p class="hero-date">${hero.date}</p>
+      <div class="hero-main">${hero.tithi}</div>
+      <div class="hero-sub">${hero.sub}</div>
+      <div class="hero-meta">${hero.meta}</div>
+    </section>
+    <section class="glass" style="padding:12px;margin-bottom:12px">
+      <div class="section-title">${html.hoursTitle}</div>
+      <div class="h-scroll">${html.hours}</div>
+    </section>
+    <section class="widgets">${html.widgets}</section>
+    ${html.list}
+    <div id="sheetRashi"></div>`;
+  if (lastPayload.rashiHtml) $("sheetRashi").innerHTML = lastPayload.rashiHtml;
+  bindDetails($("sheetBody"));
+  bindRashiExpand($("sheetRashi") || $("sheetBody"));
+  refreshStripScroll();
+  $("daySheet").classList.add("open");
+  $("daySheet").setAttribute("aria-hidden", "false");
+}
+function closeSheet() {
+  $("daySheet").classList.remove("open");
+  $("daySheet").setAttribute("aria-hidden", "true");
+}
+
+async function loadAll() {
+  const u = ui();
+  $("status").textContent = u.calculating;
+  try {
+    const qs = new URLSearchParams({
+      state_code: $("state").value,
+      lat: $("lat").value,
+      lon: $("lon").value,
+      timezone: "Asia/Kolkata",
+      date_str: $("date").value,
+      lang: lang(),
+    });
+    const p = await fetch(`/api/v1/panchang?${qs}`).then((x) => x.json());
+    const loc = localizePanchang(p);
+    const scene = sceneAssets(p);
+    applySky(scene.sky, scene.main);
+    const html = renderDayHtml(p, loc, scene);
+
+    $("title").textContent = html.hero.stateName;
+    $("heroDate").textContent = html.hero.date;
+    $("heroMain").textContent = html.hero.tithi;
+    $("heroSub").textContent = html.hero.sub;
+    $("heroMeta").textContent = html.hero.meta;
+    $("heroOrb").style.backgroundImage = `url("${stateArtUrl($("state").value)}?v=1")`;
+    $("hoursTitle").textContent = html.hoursTitle;
+    $("hours").innerHTML = html.hours || `<div class="hour-card"><div class="v">—</div></div>`;
+    $("widgets").innerHTML = html.widgets;
+    $("r").innerHTML = html.list;
+    bindDetails($("dayPanel"));
+
+    const L = lang();
+    const h = await fetch(`/api/v1/rashifal?lang=${L}&date_str=${$("date").value}`).then((x) => x.json());
+    const rashiHtml = renderRashiPanel(h, p, u, L);
+    $("h").innerHTML = rashiHtml;
+    bindRashiExpand($("h"));
+    refreshStripScroll();
+
+    lastPayload = { html, hero: html.hero, rashiHtml, p };
+    $("status").textContent = u.complete;
+    renderPanjiGrid();
+    window.dispatchEvent(new CustomEvent("panchang:loaded", { detail: { p, loc, html } }));
+  } catch (e) {
+    $("status").textContent = `${u.error}: ${e.message}`;
+  }
+}
+
+function shiftMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth < 1) { viewMonth = 12; viewYear -= 1; }
+  if (viewMonth > 12) { viewMonth = 1; viewYear += 1; }
+  loadMonthGrid();
+}
+
+$("date").value = todayIso();
+viewYear = Number($("date").value.slice(0, 4));
+viewMonth = Number($("date").value.slice(5, 7));
+$("state").value = "MH";
+$("lang").value = "mr";
+applyChrome();
+
+$("prevMonth").addEventListener("click", () => shiftMonth(-1));
+$("nextMonth").addEventListener("click", () => shiftMonth(1));
+$("btnToday").addEventListener("click", async () => {
+  $("date").value = todayIso();
+  viewYear = Number($("date").value.slice(0, 4));
+  viewMonth = Number($("date").value.slice(5, 7));
+  await loadMonthGrid();
+  await loadAll();
+});
+$("btnCalLoad").addEventListener("click", loadAll);
+$("btn").addEventListener("click", loadAll);
+$("sheetClose").addEventListener("click", closeSheet);
+$("daySheet").addEventListener("click", (e) => { if (e.target.id === "daySheet") closeSheet(); });
+$("state").addEventListener("change", async () => {
+  $("lang").value = lang();
+  applyChrome();
+  await loadAll();
+});
+$("date").addEventListener("change", async () => {
+  const v = $("date").value;
+  if (!v) return;
+  syncDateDisplay();
+  viewYear = Number(v.slice(0, 4));
+  viewMonth = Number(v.slice(5, 7));
+  await loadMonthGrid();
+  await loadAll();
+});
+loadAll();
+syncDateDisplay();
+</script>
+</body>
+</html>

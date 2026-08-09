@@ -145,6 +145,8 @@ def calculate_panchang(target_date, lat, lon, timezone_name, state_code):
         "inauspicious_timings": {"rahu_kalam": rahu},
         "astronomy": {
             "sun_sidereal_longitude": round(sun,6),
-            "moon_sidereal_longitude": round(moon,6)
+            "moon_sidereal_longitude": round(moon,6),
+            "sun_rashi_index": int(sun // 30) + 1,
+            "moon_rashi_index": int(moon // 30) + 1,
         }
     }

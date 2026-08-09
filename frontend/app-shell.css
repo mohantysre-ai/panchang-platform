@@ -1,3 +1,59 @@
-:root{--shell-primary:#7b3f00;--shell-surface:#fff8f0;--shell-on:#241a12;--shell-shadow:0 18px 50px rgba(35,22,10,.18)}
-.shell-menu{position:fixed;inset:0;z-index:100;pointer-events:none}.shell-menu.open{pointer-events:auto}.shell-scrim{position:absolute;inset:0;background:rgba(0,0,0,.42);opacity:0;transition:opacity .22s}.shell-menu.open .shell-scrim{opacity:1}.shell-drawer{position:absolute;left:0;top:0;bottom:0;width:min(340px,88vw);padding:max(18px,env(safe-area-inset-top)) 16px 24px;background:var(--shell-surface);color:var(--shell-on);transform:translateX(-104%);transition:transform .25s cubic-bezier(.2,.8,.2,1);box-shadow:var(--shell-shadow);overflow:auto}.shell-menu.open .shell-drawer{transform:none}.shell-brand{display:flex;align-items:center;gap:12px;padding:12px 8px 20px}.shell-logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#ffcc80,#9c3d24);font-size:25px;box-shadow:0 8px 20px rgba(123,63,0,.22)}.shell-brand strong{font-size:1.05rem}.shell-brand span{display:block;font-size:.72rem;opacity:.62;margin-top:2px}.shell-nav{display:grid;gap:5px}.shell-nav button{display:flex;align-items:center;gap:14px;width:100%;min-height:52px;border:0;border-radius:16px;padding:0 14px;background:transparent;color:inherit;font:inherit;text-align:left;font-weight:700;cursor:pointer}.shell-nav button:hover,.shell-nav button.active{background:#f2e5d5;color:var(--shell-primary)}.shell-nav .icon{width:28px;text-align:center;font-size:1.15rem}.shell-section{margin:20px 8px 7px;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.55}.shell-close{position:absolute;right:14px;top:max(14px,env(safe-area-inset-top));width:40px;height:40px;border:0;border-radius:50%;background:#f2e5d5;color:inherit;font-size:1.3rem;cursor:pointer}.shell-topbar{position:fixed;top:max(8px,env(safe-area-inset-top));left:12px;z-index:40;display:flex;gap:8px}.shell-fab{width:48px;height:48px;border:1px solid rgba(255,255,255,.35);border-radius:16px;background:rgba(30,25,20,.32);backdrop-filter:blur(16px);color:#fff;font-size:1.35rem;box-shadow:0 8px 24px rgba(0,0,0,.15);cursor:pointer}.shell-bottom{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:45;width:min(480px,calc(100vw - 24px));display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:7px;border:1px solid rgba(255,255,255,.24);border-radius:24px;background:rgba(25,28,38,.78);backdrop-filter:blur(22px);box-shadow:0 16px 40px rgba(0,0,0,.25)}.shell-bottom button{min-height:48px;border:0;border-radius:18px;background:transparent;color:#fff;font:inherit;font-size:.68rem;font-weight:700;cursor:pointer}.shell-bottom button.active{background:rgba(255,255,255,.16)}.shell-bottom .bi{display:block;font-size:1.05rem;margin-bottom:2px}@media(min-width:960px){.shell-bottom{display:none}.shell-topbar{left:max(calc((100vw - 1180px)/2 + 16px),16px)}}
-.shell-splash{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#ffe4b5,#a94b25 55%,#32170e);color:#fff;transition:opacity .35s,visibility .35s}.shell-splash.hide{opacity:0;visibility:hidden}.shell-splash .mark{width:96px;height:96px;border-radius:30px;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);font-size:46px;box-shadow:0 18px 60px rgba(0,0,0,.25)}.shell-splash strong{display:block;text-align:center;margin-top:18px;font-size:1.25rem}.shell-splash span{display:block;text-align:center;margin-top:5px;font-size:.72rem;opacity:.8}
+:root{
+  --shell-primary:#7b3f00;
+  --shell-surface:#fff8f0;
+  --shell-on:#241a12;
+  --shell-shadow:0 18px 50px rgba(35,22,10,.18);
+  --shell-font:"Segoe UI",system-ui,-apple-system,sans-serif;
+}
+.shell-menu,.shell-topbar,.shell-bottom,.shell-splash{
+  font-family:var(--shell-font) !important;
+}
+.shell-menu{position:fixed;inset:0;z-index:100;pointer-events:none}
+.shell-menu.open{pointer-events:auto}
+.shell-scrim{position:absolute;inset:0;background:rgba(0,0,0,.42);opacity:0;transition:opacity .22s}
+.shell-menu.open .shell-scrim{opacity:1}
+.shell-drawer{
+  position:absolute;left:0;top:0;bottom:0;width:min(340px,88vw);
+  padding:max(18px,env(safe-area-inset-top)) 16px 24px;
+  background:var(--shell-surface);color:var(--shell-on);
+  transform:translateX(-104%);transition:transform .25s cubic-bezier(.2,.8,.2,1);
+  box-shadow:var(--shell-shadow);overflow:auto;
+  font-family:var(--shell-font) !important;
+}
+.shell-menu.open .shell-drawer{transform:none}
+.shell-brand{display:flex;align-items:center;gap:12px;padding:12px 8px 20px;pointer-events:none;user-select:none;cursor:default}
+.shell-logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#ffcc80,#9c3d24);font-size:25px;box-shadow:0 8px 20px rgba(123,63,0,.22)}
+.shell-brand strong{font-size:1.05rem;font-family:var(--shell-font);pointer-events:none}
+.shell-brand span{display:block;font-size:.72rem;opacity:.62;margin-top:2px;pointer-events:none;line-height:1.25}
+.shell-nav{display:grid;gap:5px}
+.shell-nav button{
+  display:flex;align-items:center;gap:14px;width:100%;min-height:52px;border:0;border-radius:16px;
+  padding:0 14px;background:transparent;color:inherit;font:inherit;text-align:left;font-weight:700;cursor:pointer;
+  font-family:var(--shell-font) !important;
+}
+.shell-nav button:hover,.shell-nav button.active{background:#f2e5d5;color:var(--shell-primary)}
+.shell-nav .icon{width:28px;text-align:center;font-size:1.15rem}
+.shell-section{margin:20px 8px 7px;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.55}
+.shell-close{position:absolute;right:14px;top:max(14px,env(safe-area-inset-top));width:40px;height:40px;border:0;border-radius:50%;background:#f2e5d5;color:inherit;font-size:1.3rem;cursor:pointer}
+.shell-topbar{position:fixed;top:max(8px,env(safe-area-inset-top));left:12px;z-index:40;display:flex;gap:8px}
+.shell-fab{width:48px;height:48px;border:1px solid rgba(255,255,255,.35);border-radius:16px;background:rgba(30,25,20,.32);backdrop-filter:blur(16px);color:#fff;font-size:1.35rem;box-shadow:0 8px 24px rgba(0,0,0,.15);cursor:pointer}
+.shell-bottom{
+  position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:45;
+  width:min(480px,calc(100vw - 24px));display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:7px;
+  border:1px solid rgba(255,255,255,.24);border-radius:24px;background:rgba(25,28,38,.78);
+  backdrop-filter:blur(22px);box-shadow:0 16px 40px rgba(0,0,0,.25);
+  font-family:var(--shell-font) !important;
+}
+.shell-bottom button{min-height:48px;border:0;border-radius:18px;background:transparent;color:#fff;font:inherit;font-size:.68rem;font-weight:700;cursor:pointer;font-family:var(--shell-font) !important}
+.shell-bottom button.active{background:rgba(255,255,255,.16)}
+.shell-bottom .bi{display:block;font-size:1.05rem;margin-bottom:2px}
+@media(min-width:960px){.shell-bottom{display:none}.shell-topbar{left:max(calc((100vw - 1180px)/2 + 16px),16px)}}
+.shell-splash{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#ffe4b5,#a94b25 55%,#32170e);color:#fff;transition:opacity .35s,visibility .35s;font-family:var(--shell-font) !important}
+.shell-splash.hide{opacity:0;visibility:hidden}
+.shell-splash .mark{width:96px;height:96px;border-radius:30px;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);font-size:46px;box-shadow:0 18px 60px rgba(0,0,0,.25)}
+.shell-splash strong{display:block;text-align:center;margin-top:18px;font-size:1.25rem}
+.shell-splash span{display:block;text-align:center;margin-top:5px;font-size:.72rem;opacity:.8}
+body.theme-light .shell-fab{background:rgba(255,253,245,.85);color:#241a12;border-color:rgba(36,26,18,.2)}
+body.theme-light .shell-bottom{background:rgba(255,253,245,.92);border-color:rgba(36,26,18,.15)}
+body.theme-light .shell-bottom button{color:#241a12}
+body.theme-light .shell-bottom button.active{background:rgba(123,63,0,.12)}

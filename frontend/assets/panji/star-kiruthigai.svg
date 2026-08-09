@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Kiruthigai / Krittika star cluster -->
+  <path d="M16 5l1.6 4.2 4.4.5-3.3 2.9.9 4.3L16 14.8l-3.6 2.1.9-4.3-3.3-2.9 4.4-.5L16 5z" fill="#F0C14A" stroke="#B8860B" stroke-width=".7"/>
+  <circle cx="8.5" cy="22" r="2.1" fill="#D4AF37" stroke="#8B0010" stroke-width=".7"/>
+  <circle cx="16" cy="25" r="2.4" fill="#F0C14A" stroke="#8B0010" stroke-width=".7"/>
+  <circle cx="23.5" cy="22" r="2.1" fill="#D4AF37" stroke="#8B0010" stroke-width=".7"/>
+  <path d="M10.2 21.2l4.2 2.4M17.6 23.6l4.2-2.4" stroke="#C9A227" stroke-width=".8" opacity=".7"/>
+</svg>

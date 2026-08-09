@@ -50,5 +50,22 @@ if (-not $SkipInstall) {
     if ($LASTEXITCODE -ne 0) { throw "pip install failed" }
 }
 
+$Frontend = Join-Path $Root "frontend"
+$DistIndex = Join-Path $Frontend "dist\index.html"
+if (-not (Test-Path $DistIndex)) {
+    Write-Host "Building React frontend..."
+    Push-Location $Frontend
+    try {
+        if (-not (Test-Path (Join-Path $Frontend "node_modules"))) {
+            npm install
+            if ($LASTEXITCODE -ne 0) { throw "npm install failed" }
+        }
+        npm run build
+        if ($LASTEXITCODE -ne 0) { throw "frontend build failed" }
+    } finally {
+        Pop-Location
+    }
+}
+
 Write-Host "Starting API at http://localhost:$Port (docs: http://localhost:$Port/docs)"
 & $VenvPython -m uvicorn app.main:app --reload --host $HostAddress --port $Port
