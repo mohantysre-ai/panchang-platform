@@ -760,7 +760,7 @@ window.I18N = {
       "Solar": "சூரிய",
       "Standard": "பொது",
       "Choghadiya": "சௌகடியா",
-      "Gowri": "கೌரி"
+      "Gowri": "கௌரி"
     },
     "te": {
       "Purnimanta": "పూర్ణిమాంత",

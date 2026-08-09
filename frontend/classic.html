@@ -64,10 +64,62 @@ body.theme-light::before{
 body.theme-light .cal-card.panji,
 body.theme-light .cal-body,
 body.theme-light .cal-actions button{
-  color:#3a2412;
+  color:var(--cal-ink);
 }
-body.theme-light .cal-head h2{color:#FFF8EC}
-body.theme-light .cal-card .icon-btn{color:#7A0F1A}
+body.theme-light .cal-head h2{color:var(--cal-ink)}
+body.theme-light .cal-card .icon-btn{color:var(--cal-ink)}
+body.theme-light .cal-card.panji{
+  --cal-ink:#142033;
+  --cal-muted:rgba(20,32,51,.62);
+  --cal-line:rgba(30,58,95,.14);
+  --cal-cell:#F7FAFF;
+  --cal-cell-empty:rgba(30,58,95,.06);
+  --cal-accent:#1B6B9A;
+  --cal-glow:#C9852A;
+  background:
+    radial-gradient(120% 80% at 100% 0%,rgba(27,107,154,.1),transparent 55%),
+    linear-gradient(180deg,#FFFFFF,#F3F7FC);
+  border-color:rgba(30,58,95,.16);
+  color:var(--cal-ink);
+}
+body.theme-light .cal-banner .shade{
+  background:linear-gradient(180deg,rgba(16,36,64,.2),rgba(12,28,52,.72));
+}
+body.theme-light .cal-head{
+  background:rgba(255,255,255,.72);
+  border-color:rgba(30,58,95,.14);
+  box-shadow:none;
+}
+body.theme-light .panji-hd,
+body.theme-light .vaar-rail{
+  color:rgba(20,32,51,.55);
+  background:transparent;
+}
+body.theme-light .panji-cell .num{color:#142033}
+body.theme-light .panji-cell.selected{
+  background:linear-gradient(160deg,rgba(27,107,154,.14),rgba(201,133,42,.16));
+  box-shadow:inset 0 0 0 1.5px rgba(27,107,154,.45),0 0 0 4px rgba(27,107,154,.1);
+}
+body.theme-light .panji-cell.selected .num{color:#0E3A58}
+body.theme-light .legend{
+  background:rgba(255,255,255,.8);
+  border-color:rgba(30,58,95,.12);
+}
+body.theme-light .legend-title{color:#1B6B9A;background:transparent}
+body.theme-light .legend-chip{
+  background:rgba(27,107,154,.06);
+  border-color:rgba(30,58,95,.1);
+  color:#142033;
+}
+body.theme-light .cal-actions button{
+  background:rgba(27,107,154,.06);
+  border-color:rgba(30,58,95,.14);
+  color:#142033;
+}
+body.theme-light .cal-actions .primary{
+  background:linear-gradient(135deg,#1B6B9A,#0E4A6E);
+  color:#fff;
+}
 body::before{
   content:"";position:fixed;inset:0;z-index:-2;
   background:linear-gradient(180deg,#4a90d9 0%,#1f5fa8 40%,#163a72 100%);
@@ -132,22 +184,43 @@ body::before{
 }
 .topbar select option{color:#111;background:#fff}
 .topbar button{background:rgba(255,255,255,.32);font-weight:700;cursor:pointer}
-.date-field{position:relative;min-width:0;width:100%}
+.date-field{
+  position:relative;min-width:0;width:100%;height:42px;
+  border-radius:14px;border:1px solid var(--stroke);
+  background:var(--panel-bg);
+}
 .date-field input[type="date"]{
-  width:100%;height:42px;border-radius:14px;border:1px solid var(--stroke);
-  background:var(--panel-bg);color:transparent;caret-color:transparent;
-  font:inherit;padding:0 28px 0 10px;outline:none;position:relative;z-index:1;
-  color-scheme:dark;min-width:0;
+  position:absolute;inset:0;width:100%;height:100%;
+  border:0;border-radius:14px;background:transparent !important;
+  color:transparent !important;caret-color:transparent;
+  font:inherit;padding:0 32px 0 10px;outline:none;z-index:2;
+  color-scheme:dark;min-width:0;-webkit-text-fill-color:transparent;
+}
+.date-field input[type="date"]::-webkit-calendar-picker-indicator{
+  cursor:pointer;opacity:.9;filter:invert(1) brightness(1.2);
 }
 .date-field .date-display{
-  position:absolute;inset:0 26px 0 0;display:flex;align-items:center;padding:0 10px;
-  pointer-events:none;z-index:0;font-family:var(--content-font),var(--ui-font),sans-serif;
-  font-size:clamp(.68rem,.9vw,.8rem);font-weight:700;color:#fff;
+  position:absolute;inset:0 32px 0 0;display:flex;align-items:center;padding:0 10px;
+  pointer-events:none;z-index:1;font-family:var(--content-font),var(--ui-font),sans-serif;
+  font-size:clamp(.68rem,.9vw,.8rem);font-weight:700;color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  text-shadow:0 1px 2px rgba(0,0,0,.45);
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
 }
-body.theme-light .date-field input[type="date"]{color-scheme:light}
-body.theme-light .date-field .date-display{color:#1A1208;text-shadow:none}
+body.theme-light .date-field{
+  background:rgba(255,255,255,.96);
+  border-color:rgba(26,18,8,.2);
+}
+body.theme-light .date-field input[type="date"]{
+  color-scheme:light;
+}
+body.theme-light .date-field input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:none;opacity:.72;
+}
+body.theme-light .date-field .date-display{
+  color:#1A1208 !important;
+  -webkit-text-fill-color:#1A1208;
+  text-shadow:none;
+}
 .topbar .field.date-wrap{flex:1 1 150px;min-width:128px;max-width:220px}
 
 .hero{text-align:center;padding:20px 14px 14px;margin-bottom:12px;overflow:hidden;animation:fadeUp .55s ease both;background:var(--panel-bg)}
@@ -220,7 +293,13 @@ body.theme-light .hour-card{background:rgba(255,255,255,.88);border-color:rgba(2
   background:rgba(255,255,255,.1);border:1px solid var(--stroke-soft);font-size:.78rem;color:var(--text);
 }
 .rashi-focus b{color:var(--state-accent,#ffc978);font-weight:800}
-.rashi-list{display:flex;flex-direction:column;gap:8px;max-height:min(70vh,560px);overflow-y:auto;padding-right:2px;scrollbar-width:thin}
+.rashi-list{display:flex;flex-direction:column;gap:8px;max-height:none;overflow:visible;padding-right:2px}
+.rashi-item.open .rashi-body{display:block;padding-bottom:16px}
+.rashi-body .block h4{
+  margin:0 0 4px;font-size:.72rem;font-weight:800;letter-spacing:.03em;
+  color:#ffc978;
+}
+.rashi-body .block p{margin:0;font-size:.88rem;line-height:1.5;color:#fff}
 .rashi-item{
   border-radius:18px;border:1px solid var(--stroke-soft);background:rgba(8,22,48,.9);
   overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease;min-height:52px;
@@ -253,11 +332,23 @@ body.theme-light .hour-card{background:rgba(255,255,255,.88);border-color:rgba(2
 .rashi-body .state-box{
   margin-top:12px;padding:10px 12px;border-radius:14px;
   background:rgba(255,255,255,.08);border:1px solid var(--stroke-soft);
+  color:#fff;
 }
-.rashi-body .state-box h4{color:var(--state-accent,#ffc978)}
+.rashi-body .state-box h4{margin:0 0 6px;color:var(--state-accent,#ffc978)}
+.rashi-body .state-box p{margin:0;font-size:.84rem;line-height:1.45;color:rgba(255,255,255,.92)}
 body.theme-light .rashi-body .block h4{color:#9c3d24}
 body.theme-light .rashi-body .block p{color:rgba(26,18,8,.88)}
-body.theme-light .rashi-body .state-box{background:rgba(0,0,0,.04)}
+body.theme-light .rashi-body{
+  color:#1A1208;
+  border-top-color:rgba(26,18,8,.1);
+}
+body.theme-light .rashi-body .state-box{
+  background:rgba(26,18,8,.04);
+  border-color:rgba(26,18,8,.1);
+  color:#1A1208;
+}
+body.theme-light .rashi-body .state-box h4{color:#9c3d24}
+body.theme-light .rashi-body .state-box p{color:rgba(26,18,8,.88)}
 body.theme-light .rashi-body .pred{color:#1A1208}
 .rashi-body .facts{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .rashi-body .fact{
@@ -285,145 +376,218 @@ body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
 .hidden{display:none !important}
 
 .cal-card{
-  --panji-maroon:#7A0F1A;
-  --panji-selected:#8B0010;
-  --panji-cream:#FFFDF8;
-  --panji-line:#E8D9C4;
-  --panji-gold:#F0C14A;
-  --panji-gold-deep:#D4AF37;
+  --cal-ink:#EAF2FF;
+  --cal-muted:rgba(234,242,255,.68);
+  --cal-line:rgba(140,190,255,.18);
+  --cal-cell:rgba(255,255,255,.07);
+  --cal-cell-empty:rgba(255,255,255,.03);
+  --cal-accent:#6EC8FF;
+  --cal-glow:#F0C14A;
   padding:0;margin-bottom:12px;animation:fadeUp .5s ease both;overflow:hidden;
   background:
-    linear-gradient(180deg,rgba(255,253,248,.98),rgba(255,246,230,.94)),
-    #FFF8EC;
-  border:1px solid rgba(122,15,26,.28);
-  color:#3a2412;
+    radial-gradient(120% 90% at 0% 0%,rgba(80,150,255,.22),transparent 55%),
+    radial-gradient(90% 70% at 100% 10%,rgba(240,193,74,.12),transparent 50%),
+    linear-gradient(165deg,rgba(12,28,58,.92),rgba(8,18,40,.96));
+  border:1px solid rgba(140,190,255,.28);
+  color:var(--cal-ink);
+  box-shadow:0 18px 40px rgba(4,12,28,.35);
 }
-.cal-card .section-title{color:#7A0F1A;padding:10px 12px 0;letter-spacing:.06em}
+.cal-card .section-title{
+  color:var(--cal-accent);padding:12px 14px 0;letter-spacing:.14em;
+  text-transform:uppercase;font-size:.68rem;font-weight:800;opacity:.92;
+}
 .cal-banner{
-  position:relative;height:132px;overflow:hidden;
-  border-bottom:2px solid var(--panji-maroon,#7A0F1A);
+  position:relative;height:118px;overflow:hidden;
+  border-bottom:1px solid rgba(140,190,255,.2);
+  mask-image:linear-gradient(180deg,#000 55%,transparent);
 }
 .cal-banner img{
   width:100%;height:100%;object-fit:cover;display:block;
   transform:scale(1.04);animation:bannerDrift 14s ease-in-out infinite alternate;
+  filter:saturate(1.05) contrast(1.05);
 }
 @keyframes bannerDrift{from{transform:scale(1.04) translateY(0)}to{transform:scale(1.1) translateY(-3%)}}
 .cal-banner .shade{
   position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(122,15,26,.18),rgba(40,8,12,.62));
+  background:
+    linear-gradient(180deg,rgba(8,20,44,.15),rgba(6,14,32,.78)),
+    radial-gradient(60% 80% at 80% 20%,rgba(110,200,255,.18),transparent 60%);
 }
 .cal-banner .caption{
-  position:absolute;left:12px;right:12px;bottom:10px;z-index:1;
-  color:#fff7ea;text-shadow:0 2px 10px rgba(0,0,0,.45);
+  position:absolute;left:14px;right:14px;bottom:14px;z-index:1;
+  color:#F4F8FF;text-shadow:0 2px 12px rgba(0,0,0,.45);
 }
-.cal-banner .caption strong{display:block;font-size:1.05rem;font-weight:800}
-.cal-banner .caption span{font-size:.78rem;opacity:.92}
-.cal-body{padding:10px 12px 12px}
+.cal-banner .caption strong{display:block;font-size:1.08rem;font-weight:800;letter-spacing:.01em}
+.cal-banner .caption span{font-size:.76rem;opacity:.9;color:rgba(190,220,255,.95)}
+.cal-body{padding:8px 12px 14px}
 .cal-head{
-  display:flex;align-items:center;gap:8px;margin-bottom:8px;
-  padding:8px 10px;border-radius:12px;
-  background:linear-gradient(180deg,#8B0010,#7A0F1A);
-  box-shadow:inset 0 1px 0 rgba(240,193,74,.22),0 4px 12px rgba(122,15,26,.25);
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  padding:8px;border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(140,190,255,.2);
+  backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
 }
-.cal-head h2{flex:1;margin:0;text-align:center;font-size:.98rem;font-weight:800;color:#FFF8EC;letter-spacing:.02em}
+.cal-title-stack{flex:1;min-width:0;text-align:center}
+.cal-head h2{
+  margin:0;font-size:1rem;font-weight:800;color:var(--cal-ink);
+  letter-spacing:.01em;line-height:1.15;
+}
+.cal-meta{
+  margin:2px 0 0;font-size:.68rem;font-weight:600;color:var(--cal-muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 .icon-btn{
-  width:34px;height:34px;border-radius:50%;border:2px solid #F0C14A;
-  background:radial-gradient(circle at 35% 30%,#FFE08A,#F0C14A 55%,#D4AF37);
-  color:#7A0F1A;font-size:1.2rem;font-weight:800;cursor:pointer;
-  box-shadow:0 2px 6px rgba(0,0,0,.18);
+  width:36px;height:36px;border-radius:50%;border:1px solid rgba(140,190,255,.35);
+  background:rgba(110,200,255,.12);
+  color:var(--cal-ink);font-size:1.15rem;font-weight:700;cursor:pointer;
+  box-shadow:none;
   display:inline-flex;align-items:center;justify-content:center;line-height:1;
-  transition:transform .15s ease,box-shadow .15s ease;
+  transition:transform .15s ease,background .15s ease,border-color .15s ease;
 }
-.icon-btn:hover{transform:scale(1.05);box-shadow:0 3px 10px rgba(0,0,0,.22)}
+.icon-btn:hover{
+  transform:scale(1.06);
+  background:rgba(110,200,255,.22);
+  border-color:rgba(240,193,74,.55);
+}
 .icon-btn:active{transform:scale(.96)}
-.cal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .cal-actions button{
-  height:40px;border-radius:14px;border:1px solid rgba(122,15,26,.28);
-  background:rgba(122,15,26,.06);color:#7A0F1A;font:inherit;font-weight:700;cursor:pointer;
+  height:40px;border-radius:999px;border:1px solid rgba(140,190,255,.28);
+  background:rgba(255,255,255,.06);color:var(--cal-ink);font:inherit;font-weight:700;cursor:pointer;
+  transition:transform .12s ease,background .15s ease;
 }
-.cal-actions .primary{background:linear-gradient(180deg,#8B0010,#7A0F1A);color:#fff8ef;border-color:transparent}
+.cal-actions button:hover{background:rgba(255,255,255,.11)}
+.cal-actions .primary{
+  background:linear-gradient(135deg,rgba(110,200,255,.95),rgba(74,140,220,.92));
+  color:#071526;border-color:transparent;
+  box-shadow:0 8px 18px rgba(40,120,200,.28);
+}
 .panji-wrap{
-  border-radius:10px;overflow:auto;border:1px solid var(--panji-line,#E8D9C4);
-  background:var(--panji-cream,#FFFDF8);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);
+  border-radius:18px;overflow:auto;border:1px solid var(--cal-line);
+  background:
+    radial-gradient(circle at 12% 18%,rgba(255,255,255,.05) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 78% 42%,rgba(255,255,255,.04) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 40% 80%,rgba(240,193,74,.08) 0 1px,transparent 1.5px),
+    rgba(255,255,255,.03);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  padding:6px;
 }
-.panji-grid{display:grid;gap:1px;background:var(--panji-line,#E8D9C4);min-width:100%}
+.panji-grid{display:grid;gap:5px;background:transparent;min-width:100%}
 .panji-grid.cols{grid-template-columns:repeat(7,minmax(0,1fr))}
-.panji-grid.rows{grid-template-columns:48px repeat(6,minmax(46px,1fr))}
+.panji-grid.rows{grid-template-columns:42px repeat(6,minmax(42px,1fr))}
 .panji-hd{
-  text-align:center;font-size:.62rem;font-weight:800;padding:7px 2px;
-  color:#FFF8EC;background:linear-gradient(180deg,#8B0010,#7A0F1A);
-  letter-spacing:.02em;
+  text-align:center;font-size:.62rem;font-weight:800;padding:6px 2px 4px;
+  color:rgba(190,220,255,.78);background:transparent;
+  letter-spacing:.08em;text-transform:uppercase;
 }
 .vaar-rail{
   font-size:.56rem;font-weight:800;padding:4px 2px;text-align:center;
-  background:linear-gradient(180deg,#8B0010,#7A0F1A);color:#FFF8EC;
+  background:transparent;color:rgba(190,220,255,.78);
   display:flex;align-items:center;justify-content:center;
+  letter-spacing:.04em;
 }
 .panji-cell{
-  position:relative;min-height:68px;padding:6px 3px 4px;border:0;background:var(--panji-cream,#FFFDF8);
-  color:#3a2412;font:inherit;text-align:center;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  transition:background .15s ease,color .15s ease,transform .12s ease;
+  position:relative;min-height:70px;padding:8px 3px 6px;border:0;
+  background:var(--cal-cell);
+  color:var(--cal-ink);font:inherit;text-align:center;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  border-radius:14px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+  transition:background .18s ease,color .15s ease,transform .14s ease,box-shadow .18s ease;
+}
+.panji-cell:hover{
+  transform:translateY(-1px);
+  background:rgba(110,200,255,.12);
+  box-shadow:inset 0 0 0 1px rgba(110,200,255,.28),0 8px 16px rgba(0,0,0,.16);
 }
 .panji-cell:active{transform:scale(.98)}
-.panji-cell:focus-visible{outline:2px solid var(--panji-gold,#F0C14A);outline-offset:-2px;z-index:2}
-.panji-cell.empty{opacity:.28;pointer-events:none;background:#F5EBDC}
+.panji-cell:focus-visible{outline:2px solid var(--cal-glow);outline-offset:1px;z-index:2}
+.panji-cell.empty{
+  opacity:.35;pointer-events:none;background:var(--cal-cell-empty);
+  box-shadow:none;
+}
 .panji-cell.selected{
   outline:none;z-index:1;
-  background:var(--panji-selected,#8B0010);
-  box-shadow:inset 0 0 0 1px rgba(240,193,74,.45);
+  background:
+    radial-gradient(circle at 50% 30%,rgba(240,193,74,.22),transparent 55%),
+    linear-gradient(160deg,rgba(110,200,255,.28),rgba(40,90,170,.34));
+  box-shadow:
+    inset 0 0 0 1.5px rgba(240,193,74,.65),
+    0 0 0 4px rgba(110,200,255,.14),
+    0 10px 22px rgba(20,60,120,.35);
+  animation:calSelectGlow 2.4s ease-in-out infinite;
+}
+@keyframes calSelectGlow{
+  0%,100%{box-shadow:inset 0 0 0 1.5px rgba(240,193,74,.55),0 0 0 4px rgba(110,200,255,.12),0 10px 22px rgba(20,60,120,.3)}
+  50%{box-shadow:inset 0 0 0 1.5px rgba(240,193,74,.85),0 0 0 5px rgba(110,200,255,.2),0 12px 26px rgba(20,60,120,.38)}
 }
 .panji-cell.selected .num{color:#fff}
-.panji-cell.selected .mark-icon{filter:drop-shadow(0 0 2px rgba(255,255,255,.35))}
-.panji-cell.today:not(.selected){box-shadow:inset 0 0 0 2px rgba(212,175,55,.75)}
+.panji-cell.selected .mark-icon{filter:drop-shadow(0 0 3px rgba(255,255,255,.45))}
+.panji-cell.today:not(.selected){
+  box-shadow:inset 0 0 0 1.5px rgba(110,200,255,.7);
+}
 .panji-cell .num{
-  font-size:1.08rem;font-weight:800;line-height:1.1;color:#7A0F1A;
+  font-size:1.05rem;font-weight:800;line-height:1.1;color:#F4F8FF;
   font-family:var(--content-font),var(--ui-font),sans-serif;
+  align-self:flex-end;padding-right:4px;
 }
 .panji-cell .tithi,.panji-cell .nak{display:none}
 .panji-cell .marks{
-  display:flex;gap:2px;margin-top:auto;min-height:20px;
+  display:flex;gap:3px;margin-top:auto;min-height:20px;
   align-items:center;justify-content:center;flex-wrap:wrap;
   padding-bottom:1px;
 }
 .mark-icon{
-  width:20px;height:20px;object-fit:contain;display:block;
-  flex:0 0 auto;
+  width:18px;height:18px;object-fit:contain;display:block;
+  flex:0 0 auto;border-radius:50%;
+  background:rgba(8,18,40,.28);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08);
 }
 @media (max-width:380px){
-  .panji-cell{min-height:62px;padding:4px 2px 3px}
-  .panji-cell .num{font-size:.98rem}
-  .mark-icon{width:18px;height:18px}
+  .panji-cell{min-height:62px;padding:5px 2px 4px;border-radius:12px}
+  .panji-cell .num{font-size:.95rem}
+  .mark-icon{width:16px;height:16px}
 }
-.panji-cell.fest{background:#FFF6E0}
-.panji-cell.weekend .num{color:#7A0F1A}
+.panji-cell.fest{background:rgba(240,193,74,.08)}
+.panji-cell.fest:not(.selected):hover{background:rgba(240,193,74,.14)}
+.panji-cell.weekend .num{color:#9FD6FF}
 .panji-cell.selected.weekend .num{color:#fff}
 .legend{
-  display:flex;flex-direction:column;gap:0;margin-top:10px;
-  border-radius:10px;overflow:hidden;
-  border:1px solid rgba(122,15,26,.22);
-  background:linear-gradient(180deg,#FFFDF8,#FFF4E4);
+  display:flex;flex-direction:column;gap:8px;margin-top:12px;
+  border-radius:16px;overflow:hidden;
+  border:1px solid rgba(140,190,255,.18);
+  background:rgba(255,255,255,.04);
+  padding:10px;
 }
 .legend-title{
-  margin:0;padding:7px 10px;font-size:.7rem;font-weight:800;letter-spacing:.04em;
-  color:#FFF8EC;background:linear-gradient(180deg,#8B0010,#7A0F1A);
+  margin:0;padding:0 2px;font-size:.66rem;font-weight:800;letter-spacing:.12em;
+  color:var(--cal-accent);background:transparent;text-transform:uppercase;
 }
-.legend-rows{display:flex;flex-direction:column}
-.legend-row{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;font-size:.78rem;font-weight:700;color:#5a2010;
-  border-top:1px solid var(--panji-line,#E8D9C4);
+.legend-rows{
+  display:flex;flex-wrap:wrap;gap:6px;
 }
-.legend-row img{width:22px;height:22px;object-fit:contain;flex:0 0 auto}
-.legend-row span{flex:1;min-width:0}
+.legend-row,
+.legend-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 10px;font-size:.74rem;font-weight:700;color:var(--cal-ink);
+  border:1px solid rgba(140,190,255,.16);
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+}
+.legend-row img,
+.legend-chip img{width:16px;height:16px;object-fit:contain;flex:0 0 auto}
+.legend-row span,
+.legend-chip span{flex:0 1 auto;min-width:0}
 
-/* Regional parchment accents — keep Agal maroon chrome; tint fest cells only */
-.panji.bengali .panji-cell.fest:not(.selected){background:#eefbeb}
-.panji.malayalam .panji-wrap{background:#FFFDF8}
-.panji.punjabi .cal-actions .primary{background:linear-gradient(180deg,#0f9a4a,#0a7a3a)}
-.panji.gujarati .cal-actions .primary{background:linear-gradient(180deg,#e0b020,#c49210)}
-.panji.himalayan .cal-actions .primary,.panji.himachali .cal-actions .primary,.panji.kashmiri .cal-actions .primary{background:linear-gradient(180deg,#3a6fb0,#2a5f9e)}
+/* Regional accents — soft tint only, never maroon panjika chrome */
+.panji.bengali .panji-cell.fest:not(.selected){background:rgba(90,200,140,.12)}
+.panji.malayalam .panji-wrap{background:rgba(255,255,255,.03)}
+.panji.punjabi .cal-actions .primary{background:linear-gradient(135deg,#3dd68c,#1f9a5a);color:#062214}
+.panji.gujarati .cal-actions .primary{background:linear-gradient(135deg,#f0c14a,#d4a017);color:#2a1a00}
+.panji.himalayan .cal-actions .primary,
+.panji.himachali .cal-actions .primary,
+.panji.kashmiri .cal-actions .primary{background:linear-gradient(135deg,#7eb6ff,#3a6fb0);color:#071526}
 
 /* Mobile day sheet */
 .sheet{
@@ -482,9 +646,12 @@ body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
         <div class="cal-body">
           <div class="section-title" id="calSectionTitle"></div>
           <div class="cal-head">
-            <button type="button" class="icon-btn" id="prevMonth" aria-hidden="true">‹</button>
-            <h2 id="calTitle"></h2>
-            <button type="button" class="icon-btn" id="nextMonth" aria-hidden="true">›</button>
+            <button type="button" class="icon-btn" id="prevMonth" aria-label="Previous month">‹</button>
+            <div class="cal-title-stack">
+              <h2 id="calTitle"></h2>
+              <p class="cal-meta" id="calMeta"></p>
+            </div>
+            <button type="button" class="icon-btn" id="nextMonth" aria-label="Next month">›</button>
           </div>
           <div class="panji-wrap" id="panjiWrap"></div>
           <div class="legend" id="calLegend"></div>
@@ -657,19 +824,6 @@ function styleLabel() {
     konkani: "कोंकणी पंचांग",
   };
   return map[style] || (ui().calendar || ui().title);
-}
-
-function applyStateArt() {
-  const code = $("state").value;
-  const url = stateArtUrl(code);
-  const img = $("stateArt");
-  img.onerror = () => { img.onerror = null; img.src = "/assets/hero-sky.png"; };
-  img.src = `${url}?v=1`;
-  const name = nativeStateName(code);
-  $("bannerState").textContent = name;
-  $("bannerStyle").textContent = styleLabel();
-  // Soft ambient background also follows state art
-  $("bgArt").style.backgroundImage = `url("${url}?v=1")`;
 }
 
 function applyFont() {
@@ -974,10 +1128,10 @@ async function loadMonthGrid() {
   $("calLegend").innerHTML = `
     <div class="legend-title">${vrataTitle}</div>
     <div class="legend-rows">
-      <div class="legend-row">${panjiIconImg(MOON_PHASE_ICON[0], "amavasya")}<span>${shortTerm(tithiArr[29])}</span></div>
-      <div class="legend-row">${panjiIconImg(MOON_PHASE_ICON[4], "purnima")}<span>${shortTerm(tithiArr[14])}</span></div>
-      <div class="legend-row">${panjiIconImg(nakshatraSrc(4), "nakshatra")}<span>${nakLabel}</span></div>
-      <div class="legend-row">${panjiIconImg("/assets/panji/festival/default.svg", "festival")}<span>${festLabel}</span></div>
+      <div class="legend-chip">${panjiIconImg(MOON_PHASE_ICON[0], "amavasya")}<span>${shortTerm(tithiArr[29])}</span></div>
+      <div class="legend-chip">${panjiIconImg(MOON_PHASE_ICON[4], "purnima")}<span>${shortTerm(tithiArr[14])}</span></div>
+      <div class="legend-chip">${panjiIconImg(nakshatraSrc(4), "nakshatra")}<span>${nakLabel}</span></div>
+      <div class="legend-chip">${panjiIconImg("/assets/panji/festival/default.svg", "festival")}<span>${festLabel}</span></div>
     </div>`;
   try {
     const qs = new URLSearchParams({
@@ -994,11 +1148,22 @@ async function loadMonthGrid() {
       lat: $("lat").value,
       lon: $("lon").value,
     });
-    const [data, festData] = await Promise.all([
+    const midIso = `${viewYear}-${pad2(viewMonth)}-15`;
+    const lunarQs = new URLSearchParams({
+      state_code: $("state").value,
+      date_str: midIso,
+      timezone: "Asia/Kolkata",
+      lat: $("lat").value,
+      lon: $("lon").value,
+    });
+    const [data, festData, lunarData] = await Promise.all([
       fetch(`/api/v1/calendar/month?${qs}`).then((r) => r.json()),
       fetch(`/api/v1/festivals?${festQs}`)
         .then((r) => (r.ok ? r.json() : { events: [] }))
         .catch(() => ({ events: [] })),
+      fetch(`/api/v1/lunar-month?${lunarQs}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
     ]);
     monthFestivalsByDate = {};
     (festData.events || []).forEach((e) => {
@@ -1008,6 +1173,13 @@ async function loadMonthGrid() {
     monthDays = data.days || [];
     calLayout = data.layout || "col_weekday";
     calStyle = data.calendar_style || I.stateStyle[$("state").value] || "hindu";
+    const regional = data.regional_month_name || "";
+    const lunarName = lunarData?.name || "";
+    const systemLabel = (I.systems?.[lang()] || I.systems?.hi || {})[lunarData?.system] || lunarData?.system || "";
+    const metaParts = [];
+    if (regional) metaParts.push(regional);
+    if (lunarName) metaParts.push(`${systemLabel ? systemLabel + " · " : ""}${lunarName}`);
+    if ($("calMeta")) $("calMeta").textContent = metaParts.join("  ·  ");
     applyStateArt();
     renderPanjiGrid();
   } catch (e) {
@@ -1222,7 +1394,9 @@ function renderRashiPanel(h, p, u, L) {
       i === sunIdx ? "sun-today" : "",
     ].filter(Boolean).join(" ");
     const badge = i === moonIdx ? ` · ${moonLbl}` : (i === sunIdx ? ` · ${sunLbl}` : "");
-    const teaser = (x.overview || x.prediction || "").slice(0, 72);
+    const overview = x.overview || x.prediction_long || x.prediction || "";
+    const section = (title, body) =>
+      body ? `<div class="block"><h4>${title}</h4><p>${escAttr(body)}</p></div>` : "";
     return `<article class="rashi-item ${flags}" data-sign="${sign}" data-index="${i}">
       <button type="button" class="rashi-head" aria-expanded="false">
         <span>
@@ -1232,7 +1406,6 @@ function renderRashiPanel(h, p, u, L) {
         <span class="chev" aria-hidden="true">▾</span>
       </button>
       <div class="rashi-body">
-        <p class="pred">${escAttr(teaser)}${teaser.length >= 72 ? "…" : ""}</p>
         <div class="facts">
           <span class="fact">${planetLbl}: ${planet}</span>
           ${element ? `<span class="fact">${element}</span>` : ""}
@@ -1240,7 +1413,12 @@ function renderRashiPanel(h, p, u, L) {
           ${i === moonIdx ? `<span class="fact">${moonLbl}</span>` : ""}
           ${i === sunIdx ? `<span class="fact">${sunLbl}</span>` : ""}
         </div>
-        <div class="detail-mount" data-detail-mount>…</div>
+        ${section(u.overview || "Overview", overview)}
+        ${section(u.work || "Work", x.work)}
+        ${section(u.family || "Family", x.family)}
+        ${section(u.health || "Health", x.health)}
+        ${section(u.remedy || "Remedy", x.remedy)}
+        <div class="detail-mount" data-detail-mount></div>
       </div>
     </article>`;
   }).join("");
@@ -1256,36 +1434,35 @@ function renderRashiPanel(h, p, u, L) {
 }
 
 function renderRashiDetailHtml(d, u, L) {
-  const planet = localizePlanet(d.planet, L);
-  const element = localizePlanet(d.element, L);
   const st = d.state || {};
-  const section = (title, body) =>
-    body ? `<div class="block"><h4>${title}</h4><p>${escAttr(body)}</p></div>` : "";
+  const systems = (I.systems && (I.systems[L] || I.systems.hi)) || {};
+  // Prefer API-localized labels; only re-map from English keys when needed.
+  const systemOut = (!/[A-Za-z]{3,}/.test(st.system || "") && st.system)
+    || systems[st.system_en] || systems[st.system] || st.system || "—";
+  const muhuratOut = (!/[A-Za-z]{3,}/.test(st.muhurat || "") && st.muhurat)
+    || systems[st.muhurat_en] || systems[st.muhurat] || st.muhurat || "—";
+  const section = (title, body) => {
+    const s = String(body || "").trim();
+    if (!s) return "";
+    return `<div class="block"><h4>${title}</h4><p>${escAttr(s)}</p></div>`;
+  };
   return `
-    ${section(u.overview || "Overview", d.overview || d.prediction_long)}
-    ${section(u.work || "Work", d.work)}
-    ${section(u.family || "Family", d.family)}
-    ${section(u.health || "Health", d.health)}
-    ${section(u.remedy || "Remedy", d.remedy)}
     <div class="state-box">
       <h4>${u.state_context || "Regional panchang"}</h4>
       <p>${escAttr(st.note || "")}</p>
       <div class="facts" style="margin-top:8px">
-        <span class="fact">${st.system || "—"}</span>
-        <span class="fact">${st.muhurat || "—"}</span>
-        ${st.vaar ? `<span class="fact">${st.vaar}</span>` : ""}
+        <span class="fact">${escAttr(systemOut)}</span>
+        <span class="fact">${escAttr(muhuratOut)}</span>
+        ${st.vaar ? `<span class="fact">${escAttr(st.vaar)}</span>` : ""}
+        ${st.nakshatra ? `<span class="fact">${escAttr(st.nakshatra)}</span>` : ""}
+        ${st.tithi ? `<span class="fact">${escAttr(st.tithi)}</span>` : ""}
         ${d.is_moon_sign ? `<span class="fact">${u.moon_sign || "Moon"}</span>` : ""}
         ${d.is_sun_sign ? `<span class="fact">${u.sun_sign || "Sun"}</span>` : ""}
       </div>
     </div>
     ${section(u.daily_horoscope || "Daily", d.daily?.horoscope)}
     ${section(u.weekly_horoscope || "Weekly", d.weekly?.horoscope)}
-    ${section(u.monthly_horoscope || "Monthly", d.monthly?.horoscope)}
-    <div class="facts" style="margin-top:10px">
-      <span class="fact">${u.ruling_planet || "Planet"}: ${planet}</span>
-      ${element ? `<span class="fact">${element}</span>` : ""}
-      <span class="fact">${u.lucky}: ${d.lucky_color || "—"} · ${N(d.lucky_number || "")}</span>
-    </div>`;
+    ${section(u.monthly_horoscope || "Monthly", d.monthly?.horoscope)}`;
 }
 
 function bindRashiExpand(root) {
@@ -1293,7 +1470,9 @@ function bindRashiExpand(root) {
   root.querySelectorAll(".rashi-item").forEach((item) => {
     const head = item.querySelector(".rashi-head");
     const mount = item.querySelector("[data-detail-mount]");
-    head?.addEventListener("click", async () => {
+    if (!head || head.dataset.bound === "1") return;
+    head.dataset.bound = "1";
+    head.addEventListener("click", async () => {
       const opening = !item.classList.contains("open");
       root.querySelectorAll(".rashi-item.open").forEach((el) => {
         if (el !== item) {
@@ -1303,27 +1482,34 @@ function bindRashiExpand(root) {
       });
       item.classList.toggle("open", opening);
       head.setAttribute("aria-expanded", opening ? "true" : "false");
-      if (!opening || !mount || mount.dataset.loaded === "1") return;
-      mount.classList.add("loading");
-      mount.textContent = "…";
+      if (opening) {
+        item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+      if (!opening || !mount) return;
+      // Always refresh detail so language/state changes never leave a stale Hindi/English mix.
+      mount.dataset.loaded = "0";
+      mount.innerHTML = `<p class="daily loading">${ui().calculating || "…"}</p>`;
       try {
         const sign = item.dataset.sign || "aries";
+        const L = lang();
         const qs = new URLSearchParams({
           sign,
-          lang: lang(),
+          lang: L,
           state_code: $("state").value,
           date_str: $("date").value,
           lat: $("lat").value,
           lon: $("lon").value,
           timezone: "Asia/Kolkata",
         });
-        const d = await fetch(`/api/v1/rashifal/detail?${qs}`).then((r) => r.json());
-        mount.innerHTML = renderRashiDetailHtml(d, ui(), lang());
+        const d = await fetch(`/api/v1/rashifal/detail?${qs}`).then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        });
+        mount.innerHTML = renderRashiDetailHtml(d, ui(), L);
         mount.dataset.loaded = "1";
+        item.scrollIntoView({ behavior: "smooth", block: "nearest" });
       } catch (err) {
-        mount.textContent = String(err.message || err);
-      } finally {
-        mount.classList.remove("loading");
+        mount.innerHTML = `<p class="daily">${escAttr(String(err.message || err))}</p>`;
       }
     });
   });

@@ -67,5 +67,22 @@ if (-not (Test-Path $DistIndex)) {
     }
 }
 
+# Clear stale listeners on the API port (Windows uvicorn --reload can leave zombie PIDs).
+Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | ForEach-Object {
+    $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$($_.OwningProcess)" -ErrorAction SilentlyContinue
+    if ($proc -and ($proc.Name -match 'python' -or $proc.CommandLine -match 'uvicorn')) {
+        Write-Host "Stopping existing API process PID $($proc.ProcessId)"
+        cmd /c "taskkill /F /PID $($proc.ProcessId) /T" | Out-Null
+    }
+}
+Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+    Where-Object { $_.CommandLine -match 'uvicorn app\.main:app' } |
+    ForEach-Object {
+        Write-Host "Stopping leftover uvicorn PID $($_.ProcessId)"
+        cmd /c "taskkill /F /PID $($_.ProcessId) /T" | Out-Null
+    }
+Start-Sleep -Seconds 1
+
 Write-Host "Starting API at http://localhost:$Port (docs: http://localhost:$Port/docs)"
-& $VenvPython -m uvicorn app.main:app --reload --host $HostAddress --port $Port
+# Avoid --reload on Windows: WatchFiles + multiprocessing has left zombie listeners serving stale code.
+& $VenvPython -m uvicorn app.main:app --host $HostAddress --port $Port
