@@ -1,0 +1,74 @@
+[
+  {
+    "date": "2025-01-14",
+    "state": "Tamil Nadu",
+    "festival": "Makar Sankranti / Pongal",
+    "expected_tithi": "Shukla Ekadashi",
+    "lat": 13.0827,
+    "lon": 80.2707
+  },
+  {
+    "date": "2025-10-20",
+    "state": "Odisha",
+    "festival": "Diwali / Kali Puja",
+    "expected_tithi": "Amavasya",
+    "lat": 20.2961,
+    "lon": 85.8245
+  },
+  {
+    "date": "2026-01-14",
+    "state": "Tamil Nadu",
+    "festival": "Makar Sankranti / Pongal",
+    "expected_tithi": "Shukla Ekadashi",
+    "lat": 13.0827,
+    "lon": 80.2707
+  },
+  {
+    "date": "2026-03-03",
+    "state": "Maharashtra",
+    "festival": "Holi / Dhulivandan",
+    "expected_tithi": "Purnima",
+    "lat": 19.0760,
+    "lon": 72.8777
+  },
+  {
+    "date": "2026-11-08",
+    "state": "Odisha",
+    "festival": "Diwali / Kali Puja",
+    "expected_tithi": "Amavasya",
+    "lat": 20.2961,
+    "lon": 85.8245
+  },
+  {
+    "date": "2027-03-22",
+    "state": "Karnataka",
+    "festival": "Ugadi / Gudi Padwa",
+    "expected_tithi": "Shukla Pratipada",
+    "lat": 12.9716,
+    "lon": 77.5946
+  },
+  {
+    "date": "2028-10-17",
+    "state": "Uttar Pradesh",
+    "festival": "Diwali",
+    "expected_tithi": "Amavasya",
+    "lat": 26.8467,
+    "lon": 80.9462
+  },
+  {
+    "date": "2029-03-30",
+    "state": "West Bengal",
+    "festival": "Dol Purnima / Holi",
+    "expected_tithi": "Purnima",
+    "lat": 22.5726,
+    "lon": 88.3639
+  },
+  {
+    "date": "2030-10-26",
+    "state": "Gujarat",
+    "festival": "Diwali",
+    "expected_tithi": "Amavasya",
+    "lat": 23.0225,
+    "lon": 72.5714
+  }
+]
