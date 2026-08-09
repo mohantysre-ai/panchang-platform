@@ -12,15 +12,15 @@ from .panchang import calculate_panchang, month_calendar
 from .regional_v2 import regional_timings, available_states, state_style, regional_month_name
 from .rashifal import LANGUAGES,generate_rashifal
 from .storage import get_or_create,ensure_dirs
-from .festivals import festivals_for_date, festivals_for_month
+from .festivals import festivals_for_date, festivals_for_month, lunar_month_for_date
 FRONTEND=Path(__file__).resolve().parents[2]/"frontend"
-app=FastAPI(title=settings.app_name,version="3.0.0")
+app=FastAPI(title=settings.app_name,version="3.1.0")
 app.add_middleware(CORSMiddleware,allow_origins=["*"],allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
 @app.on_event("startup")
 def startup():ensure_dirs();init_db()
 def current_date(tz):return datetime.now(ZoneInfo(tz)).date()
 @app.get("/api/v1/health")
-def health():return {"status":"ok","service":settings.app_name,"cache":cache.status(),"json_storage":settings.json_storage_enabled,"postgres":settings.postgres_enabled,"gemini_configured":bool(settings.gemini_api_key)}
+def health():return {"status":"ok","service":settings.app_name,"cache":cache.status(),"json_storage":settings.json_storage_enabled,"postgres":settings.postgres_enabled,"gemini_configured":bool(settings.gemini_api_key),"release":"regional-calendar-launch"}
 @app.get("/api/v1/states")
 def states():return {"states":available_states(),"languages":LANGUAGES}
 @app.get("/api/v1/panchang")
@@ -45,6 +45,11 @@ def festivals(state_code:str=Query("KA"),lat:float=Query(settings.default_lat),l
     if year is not None or month is not None:
         today=current_date(timezone);y=year or today.year;m=month or today.month;m=m if 1<=m<=12 else today.month;return festivals_for_month(y,m,state_code,lat,lon,timezone)
     target=date.fromisoformat(date_str) if date_str else current_date(timezone);return festivals_for_date(target,state_code,lat,lon,timezone)
+@app.get("/api/v1/lunar-month")
+def lunar_month(state_code:str=Query("KA"),date_str:str|None=Query(None),timezone:str=Query(settings.default_timezone),lat:float=Query(settings.default_lat),lon:float=Query(settings.default_lon)):
+    try:ZoneInfo(timezone)
+    except Exception:timezone=settings.default_timezone
+    target=date.fromisoformat(date_str) if date_str else current_date(timezone);return lunar_month_for_date(target,state_code,lat,lon,timezone)
 @app.get("/api/v1/calendar/month")
 def calendar_month(state_code:str=Query("KA"),year:int|None=Query(None),month:int|None=Query(None),timezone:str=Query(settings.default_timezone)):
     try:ZoneInfo(timezone)
@@ -59,9 +64,20 @@ def regional_css():return FileResponse(FRONTEND/"regional-ui.css",media_type="te
 def regional_js():return FileResponse(FRONTEND/"regional-ui.js",media_type="application/javascript")
 @app.get("/state-options.js")
 def state_options_js():return FileResponse(FRONTEND/"state-options.js",media_type="application/javascript")
+@app.get("/app-shell.css")
+def app_shell_css():return FileResponse(FRONTEND/"app-shell.css",media_type="text/css")
+@app.get("/app-shell.js")
+def app_shell_js():return FileResponse(FRONTEND/"app-shell.js",media_type="application/javascript")
+@app.get("/manifest.webmanifest")
+def manifest():return FileResponse(FRONTEND/"manifest.webmanifest",media_type="application/manifest+json")
+@app.get("/sw.js")
+def service_worker():return FileResponse(FRONTEND/"sw.js",media_type="application/javascript")
 @app.get("/")
 def home():
-    html=(FRONTEND/"index.html").read_text(encoding="utf-8");html=html.replace('</head>','<link rel="stylesheet" href="/regional-ui.css?v=3"><script defer src="/regional-ui.js?v=3"></script><script defer src="/state-options.js?v=1"></script></head>');return HTMLResponse(html)
+    html=(FRONTEND/"index.html").read_text(encoding="utf-8")
+    inject='<link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/regional-ui.css?v=4"><link rel="stylesheet" href="/app-shell.css?v=1"><script src="/state-options.js?v=2"></script><script defer src="/regional-ui.js?v=4"></script><script defer src="/app-shell.js?v=1"></script>'
+    html=html.replace('</head>',inject+'</head>')
+    return HTMLResponse(html)
 @app.get("/i18n.js")
 def i18n_js():return FileResponse(FRONTEND/"i18n.js",media_type="application/javascript")
 @app.get("/fonts.css")
