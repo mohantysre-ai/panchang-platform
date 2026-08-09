@@ -1,0 +1,9 @@
+{
+  "appId": "ai.panchang.regional",
+  "appName": "Regional Panchang",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
