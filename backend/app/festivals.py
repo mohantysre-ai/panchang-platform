@@ -19,8 +19,7 @@ def _phase(dt):
 def _full_moon(dt,forward=False):
     step=timedelta(hours=6);cur=dt;prev,_=_phase(cur)
     for _ in range(70):
-        nxt=cur+(step if forward else -step);angle,_=_phase(nxt)
-        crossed=(prev<180<=angle) if forward else (angle<180<=prev)
+        nxt=cur+(step if forward else -step);angle,_=_phase(nxt);crossed=(prev<180<=angle) if forward else (angle<180<=prev)
         if crossed:
             a,b=(cur,nxt) if forward else (nxt,cur)
             for _ in range(28):
@@ -48,8 +47,9 @@ def _solar_ingress_date(target,longitude,timezone):
     tz=ZoneInfo(timezone)
     for delta in range(-3,4):
         d=target+timedelta(days=delta);noon=datetime(d.year,d.month,d.day,12,tzinfo=tz);sun_b=sidereal_longitudes(noon-timedelta(hours=12))[0];sun_a=sidereal_longitudes(noon+timedelta(hours=12))[0]
-        if longitude==0 and (sun_b>330 or sun_a<30):return d
-        if sun_b<=longitude<=sun_a:return d
+        if longitude==0:
+            if sun_b>330 and sun_a<30:return d
+        elif sun_b<=longitude<=sun_a:return d
     return None
 def _matches(defn,target,lat,lon,timezone,state):
     rule=defn["rule"];kind=rule.get("type")
