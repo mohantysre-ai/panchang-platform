@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from calendar import monthrange
 from zoneinfo import ZoneInfo
 from .ephemeris import sidereal_longitudes, rise_set
 
@@ -61,6 +62,51 @@ def karana(diff):
         names = ["Bava","Balava","Kaulava","Taitila","Garaja","Vanija","Vishti"]
         name = names[(i - 1) % 7]
     return {"index": i + 1, "name": name}
+
+def _marks_for_tithi(tithi_index: int) -> list[str]:
+    marks = []
+    if tithi_index in (11, 26):
+        marks.append("ekadashi")
+    if tithi_index == 15:
+        marks.append("purnima")
+    if tithi_index == 30:
+        marks.append("amavasya")
+    return marks
+
+def day_lunar_summary(target_date: date, timezone_name: str) -> dict:
+    """Fast noon-based lunar summary for calendar cells (no rise/set)."""
+    tz = ZoneInfo(timezone_name)
+    noon = datetime(target_date.year, target_date.month, target_date.day, 12, 0, tzinfo=tz)
+    sun, moon = sidereal_longitudes(noon)
+    diff = (moon - sun) % 360
+    weekday = (target_date.weekday() + 1) % 7
+    t = tithi(sun, moon)
+    n = nakshatra(moon)
+    return {
+        "date": target_date.isoformat(),
+        "day": target_date.day,
+        "vaar_index": weekday,
+        "tithi_index": t["index"],
+        "tithi_name": t["name"],
+        "paksha": t["paksha"],
+        "nakshatra_index": n["index"],
+        "nakshatra_name": n["name"],
+        "pada": n["pada"],
+        "yoga_index": yoga(sun, moon)["index"],
+        "karana_name": karana(diff)["name"],
+        "marks": _marks_for_tithi(t["index"]),
+    }
+
+def month_calendar(year: int, month: int, timezone_name: str, state_code: str) -> dict:
+    _, days = monthrange(year, month)
+    cells = [day_lunar_summary(date(year, month, d), timezone_name) for d in range(1, days + 1)]
+    return {
+        "year": year,
+        "month": month,
+        "state_code": state_code.upper(),
+        "timezone": timezone_name,
+        "days": cells,
+    }
 
 def calculate_panchang(target_date, lat, lon, timezone_name, state_code):
     tz = ZoneInfo(timezone_name)

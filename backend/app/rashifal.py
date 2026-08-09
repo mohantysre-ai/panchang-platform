@@ -11,6 +11,11 @@ LANGUAGES = {
     "te": "\u0c24\u0c46\u0c32\u0c41\u0c17\u0c41",
     "mr": "\u092e\u0930\u093e\u0920\u0940",
     "or": "\u0b13\u0b21\u0b3c\u0b3f\u0b06",
+    "bn": "\u09ac\u09be\u0982\u09b2\u09be",
+    "as": "\u0985\u09b8\u09ae\u09c0\u09af\u09bc\u09be",
+    "pa": "\u0a2a\u0a70\u0a1c\u0a3e\u0a2c\u0a40",
+    "gu": "\u0a97\u0ac1\u0a9c\u0ab0\u0abe\u0aa4\u0ac0",
+    "ml": "\u0d2e\u0d32\u0d2f\u0d3e\u0d33\u0d02",
 }
 
 _TERMS_PATH = Path(__file__).resolve().parents[1] / "scripts" / "terms.json"

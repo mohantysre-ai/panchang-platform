@@ -4,11 +4,12 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI,Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from .config import settings
 from .cache import cache
 from .database import init_db
-from .panchang import calculate_panchang
-from .regional import regional_timings,available_states
+from .panchang import calculate_panchang, month_calendar
+from .regional import regional_timings, available_states, state_style
 from .rashifal import LANGUAGES,generate_rashifal
 from .storage import get_or_create,ensure_dirs
 
@@ -83,6 +84,37 @@ def festivals(state_code:str="KA",date_str:str|None=None):
     target=date.fromisoformat(date_str) if date_str else current_date(settings.default_timezone)
     return {"date":target.isoformat(),"state_code":state_code.upper(),"events":[]}
 
+@app.get("/api/v1/calendar/month")
+def calendar_month(
+    state_code: str = Query("KA"),
+    year: int | None = Query(None),
+    month: int | None = Query(None),
+    timezone: str = Query(settings.default_timezone),
+):
+    try:
+        ZoneInfo(timezone)
+    except Exception:
+        timezone = settings.default_timezone
+    today = current_date(timezone)
+    year = year or today.year
+    month = month or today.month
+    if month < 1 or month > 12:
+        month = today.month
+    state_code = state_code.upper()
+    key = f"calmonth:{year}:{month}:{state_code}:{timezone}"
+
+    def generate():
+        data = month_calendar(year, month, timezone, state_code)
+        data["calendar_style"] = state_style(state_code)
+        data["layout"] = (
+            "row_weekday"
+            if state_style(state_code) in {"odia", "malayalam", "assamese"}
+            else "col_weekday"
+        )
+        return data
+
+    return get_or_create(key, "panchang", generate)
+
 @app.get("/")
 def home():
     return FileResponse(FRONTEND / "index.html")
@@ -90,3 +122,9 @@ def home():
 @app.get("/i18n.js")
 def i18n_js():
     return FileResponse(FRONTEND / "i18n.js", media_type="application/javascript")
+
+@app.get("/fonts.css")
+def fonts_css():
+    return FileResponse(FRONTEND / "fonts.css", media_type="text/css")
+
+app.mount("/assets", StaticFiles(directory=FRONTEND / "assets"), name="assets")
