@@ -77,7 +77,7 @@ def service_worker():return FileResponse(FRONTEND/"sw.js",media_type="applicatio
 @app.get("/")
 def home():
     html=(FRONTEND/"index.html").read_text(encoding="utf-8")
-    inject='<link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/regional-ui.css?v=5"><link rel="stylesheet" href="/app-shell.css?v=1"><script src="/state-options.js?v=2"></script><script defer src="/regional-ui.js?v=5"></script><script defer src="/app-shell.js?v=1"></script><script defer src="/launch-enhancements.js?v=1"></script>'
+    inject='<link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/regional-ui.css?v=5"><link rel="stylesheet" href="/app-shell.css?v=1"><script src="/state-options.js?v=2"></script><script defer src="/regional-ui.js?v=6"></script><script defer src="/app-shell.js?v=1"></script><script defer src="/launch-enhancements.js?v=1"></script>'
     html=html.replace('</head>',inject+'</head>')
     return HTMLResponse(html)
 @app.get("/i18n.js")

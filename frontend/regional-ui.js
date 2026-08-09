@@ -9,6 +9,39 @@
   function setAccent(){const c=window.__regionalStates?.[state()];if(c?.accent){document.documentElement.style.setProperty("--state-accent",c.accent);document.body.dataset.stateStyle=c.style||""}}
   async function renderRegional(){const target=$("#r");if(!target)return;try{const q=new URLSearchParams({state_code:state(),lat:lat(),lon:lon(),timezone:"Asia/Kolkata",date_str:date()});const p=await fetch("/api/v1/panchang?"+q).then(r=>r.json());const r=p.regional||{};const slots=r.gowri_panchangam||r.choghadiya_day||[];if(!slots.length)return;const isG=!!r.gowri_panchangam;const title=isG?L().gowri:L().chog;let body='';if(isG){body='<div class="gowri-table">'+slots.map(x=>`<div class="gowri-row ${x.nature.toLowerCase()}"><span class="slot">${x.slot}</span><span class="name">${x.name}</span><span class="time">${x.time}</span><span class="nature">${x.nature==='Good'?L().good:L().bad}</span></div>`).join('')+'</div>'}else{body='<div class="regional-timeline">'+slots.map(x=>`<div class="regional-slot ${x.nature.toLowerCase()}"><div class="n">${x.name}</div><div class="t">${x.time}</div><div class="nature">${x.nature==='Good'?L().good:L().bad}</div></div>`).join('')+'</div>'}const card=document.createElement('section');card.className='regional-card';card.id='regionalMuhurat';card.innerHTML=`<div class="regional-head"><div><div class="regional-title">${title}</div><div class="regional-sub">${r.system||''}</div></div><span class="regional-badge">${isG?'Gowri':'Choghadiya'}</span></div>${body}<div class="regional-priority">${(r.priority_fields||[]).map(x=>`<span>${x.replaceAll('_',' ')}</span>`).join('')}</div>`;target.prepend(card);setAccent()}catch(e){}}
   async function month(){const h=$("#calTitle");if(!h)return;try{const d=new Date(date());const q=new URLSearchParams({state_code:state(),year:String(d.getFullYear()),month:String(d.getMonth()+1),timezone:"Asia/Kolkata"});const x=await fetch('/api/v1/calendar/month?'+q).then(r=>r.json());let m=h.querySelector('.regional-month');if(!m){m=document.createElement('span');m.className='regional-month';h.appendChild(m)}m.textContent=`${L().month}: ${x.regional_month_name||''}`;document.documentElement.style.setProperty('--state-accent',x.regional_accent||getComputedStyle(document.documentElement).getPropertyValue('--state-accent'))}catch(e){}}
-  function refresh(){document.querySelector('#regionalMuhurat')?.remove();setAccent();renderRegional();month()}
-  document.addEventListener('DOMContentLoaded',()=>{a11y();states();const s=$("#state");if(s)s.addEventListener('change',()=>setTimeout(refresh,250));const mo=new MutationObserver(()=>{if($("#hours")?.children.length){clearTimeout(window.__regionalTimer);window.__regionalTimer=setTimeout(refresh,120)}});const root=$("#dayPanel");if(root)mo.observe(root,{subtree:true,childList:true});setTimeout(refresh,900)});
+  function refresh(){
+    if(window.__regionalBusy)return;
+    window.__regionalBusy=true;
+    try{
+      document.querySelector('#regionalMuhurat')?.remove();
+      setAccent();
+      renderRegional();
+      month();
+    }finally{
+      // Allow the hours observer to settle before accepting another pass.
+      setTimeout(()=>{window.__regionalBusy=false},200);
+    }
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    a11y();
+    states();
+    const s=$("#state");
+    if(s)s.addEventListener('change',()=>setTimeout(refresh,250));
+    // Observe only #hours. Watching #dayPanel caused an infinite loop:
+    // refresh() mutates #r inside dayPanel → observer → refresh() again.
+    const hours=$("#hours");
+    if(hours){
+      let lastSig="";
+      const mo=new MutationObserver(()=>{
+        if(window.__regionalBusy||!hours.children.length)return;
+        const sig=hours.innerHTML;
+        if(sig===lastSig)return;
+        lastSig=sig;
+        clearTimeout(window.__regionalTimer);
+        window.__regionalTimer=setTimeout(refresh,120);
+      });
+      mo.observe(hours,{childList:true});
+    }
+    setTimeout(refresh,900);
+  });
 })();
