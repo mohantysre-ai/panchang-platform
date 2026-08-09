@@ -68,6 +68,8 @@ def state_options_js():return FileResponse(FRONTEND/"state-options.js",media_typ
 def app_shell_css():return FileResponse(FRONTEND/"app-shell.css",media_type="text/css")
 @app.get("/app-shell.js")
 def app_shell_js():return FileResponse(FRONTEND/"app-shell.js",media_type="application/javascript")
+@app.get("/launch-enhancements.js")
+def launch_enhancements_js():return FileResponse(FRONTEND/"launch-enhancements.js",media_type="application/javascript")
 @app.get("/manifest.webmanifest")
 def manifest():return FileResponse(FRONTEND/"manifest.webmanifest",media_type="application/manifest+json")
 @app.get("/sw.js")
@@ -75,7 +77,7 @@ def service_worker():return FileResponse(FRONTEND/"sw.js",media_type="applicatio
 @app.get("/")
 def home():
     html=(FRONTEND/"index.html").read_text(encoding="utf-8")
-    inject='<link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/regional-ui.css?v=4"><link rel="stylesheet" href="/app-shell.css?v=1"><script src="/state-options.js?v=2"></script><script defer src="/regional-ui.js?v=4"></script><script defer src="/app-shell.js?v=1"></script>'
+    inject='<link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/regional-ui.css?v=5"><link rel="stylesheet" href="/app-shell.css?v=1"><script src="/state-options.js?v=2"></script><script defer src="/regional-ui.js?v=5"></script><script defer src="/app-shell.js?v=1"></script><script defer src="/launch-enhancements.js?v=1"></script>'
     html=html.replace('</head>',inject+'</head>')
     return HTMLResponse(html)
 @app.get("/i18n.js")
