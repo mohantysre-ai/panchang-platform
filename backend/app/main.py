@@ -12,10 +12,11 @@ from .panchang import calculate_panchang, month_calendar
 from .regional import regional_timings, available_states, state_style
 from .rashifal import LANGUAGES,generate_rashifal
 from .storage import get_or_create,ensure_dirs
+from .festivals import festivals_for_date, festivals_for_month
 
 FRONTEND = Path(__file__).resolve().parents[2] / "frontend"
 
-app=FastAPI(title=settings.app_name,version="2.0.0")
+app=FastAPI(title=settings.app_name,version="2.1.0")
 app.add_middleware(CORSMiddleware,allow_origins=["*"],allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
 
 @app.on_event("startup")
@@ -80,9 +81,27 @@ def rashifal(lang:str=Query("kn"),date_str:str|None=Query(None)):
     )
 
 @app.get("/api/v1/festivals")
-def festivals(state_code:str="KA",date_str:str|None=None):
-    target=date.fromisoformat(date_str) if date_str else current_date(settings.default_timezone)
-    return {"date":target.isoformat(),"state_code":state_code.upper(),"events":[]}
+def festivals(
+    state_code:str=Query("KA"),
+    lat:float=Query(settings.default_lat),
+    lon:float=Query(settings.default_lon),
+    timezone:str=Query(settings.default_timezone),
+    date_str:str|None=Query(None),
+    year:int|None=Query(None),
+    month:int|None=Query(None),
+):
+    try: ZoneInfo(timezone)
+    except Exception: timezone=settings.default_timezone
+    state_code=state_code.upper()
+    if year is not None or month is not None:
+        today=current_date(timezone)
+        target_year=year or today.year
+        target_month=month or today.month
+        if target_month < 1 or target_month > 12:
+            target_month=today.month
+        return festivals_for_month(target_year,target_month,state_code,lat,lon,timezone)
+    target=date.fromisoformat(date_str) if date_str else current_date(timezone)
+    return festivals_for_date(target,state_code,lat,lon,timezone)
 
 @app.get("/api/v1/calendar/month")
 def calendar_month(
