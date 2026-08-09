@@ -19,9 +19,7 @@ def _phase(dt):
 def _cross_phase(dt,phase,forward):
     step=timedelta(hours=6);cur=dt;prev,_=_phase(cur)
     for _ in range(70):
-        nxt=cur+(step if forward else -step);angle,_=_phase(nxt)
-        if phase==180:crossed=(prev<180<=angle) if forward else (angle<180<=prev)
-        else:crossed=(prev>300 and angle<60) if forward else (angle>300 and prev<60)
+        nxt=cur+(step if forward else -step);angle,_=_phase(nxt);crossed=((prev<180<=angle) if forward else (angle<180<=prev)) if phase==180 else ((prev>300 and angle<60) if forward else (angle>300 and prev<60))
         if crossed:
             a,b=(cur,nxt) if forward else (nxt,cur)
             for _ in range(28):
@@ -45,10 +43,9 @@ def _lunar_month(dt,system="Amanta"):
     if not month:return None
     prev_new=_new_moon(dt,False);next_new=_new_moon(dt,True);adhika=False
     if prev_new and next_new:
-        prev_sun=sidereal_longitudes(prev_new)[0];next_sun=sidereal_longitudes(next_new)[0];adhika=int(prev_sun//30)==int(next_sun//30)
+        before=sidereal_longitudes(prev_new+timedelta(hours=1))[0];after=sidereal_longitudes(next_new-timedelta(hours=1))[0];adhika=int(before//30)==int(after//30)
     tithi=int(angle//12)+1
-    if system=="Purnimanta" and tithi>15:
-        month=(month+1)%12 or 12
+    if system=="Purnimanta" and tithi>15:month=(month%12)+1
     return {"index":month,"name":AMANTA_MONTHS[month-1],"system":system,"tithi_index":tithi,"paksha":"Shukla" if tithi<=15 else "Krishna","adhika":adhika}
 def lunar_month_for_date(target,state_code,lat,lon,timezone):
     cfg=STATE_CONFIGS.get(state_code.upper(),STATE_CONFIGS["KA"]);system=cfg.get("system","Amanta");sunrise,_=rise_set(target,lat,lon,timezone);dt=sunrise or datetime(target.year,target.month,target.day,6,tzinfo=ZoneInfo(timezone));sun,_moon=sidereal_longitudes(dt);sign=int(sun//30)
@@ -80,7 +77,7 @@ def _event(defn,target):return {"id":defn["id"],"date":target.isoformat(),"categ
 def resolve_festivals(target,state_code,lat,lon,timezone):
     events=[_event(d,target) for d in _load_definitions() if _applies(d,state_code) and _matches(d,target,lat,lon,timezone,state_code)];events.sort(key=lambda x:(x["category"]!="major",x["id"]));return {"date":target.isoformat(),"state_code":state_code.upper(),"timezone":timezone,"events":events,"engine":"Swiss Ephemeris + sunrise tithi + Purnima-nakshatra lunar-month resolver"}
 def festivals_for_date(target,state_code,lat,lon,timezone):
-    key=f"festivals:v3:{target}:{state_code.upper()}:{lat:.5f}:{lon:.5f}:{timezone}";return get_or_create(key,"festivals",lambda:resolve_festivals(target,state_code,lat,lon,timezone))
+    key=f"festivals:v4:{target}:{state_code.upper()}:{lat:.5f}:{lon:.5f}:{timezone}";return get_or_create(key,"festivals",lambda:resolve_festivals(target,state_code,lat,lon,timezone))
 def festivals_for_month(year,month,state_code,lat,lon,timezone):
     start=date(year,month,1);next_month=date(year+(month==12),1 if month==12 else month+1,1);events=[];cursor=start
     while cursor<next_month:events.extend(festivals_for_date(cursor,state_code,lat,lon,timezone)["events"]);cursor+=timedelta(days=1)
