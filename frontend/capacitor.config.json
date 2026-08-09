@@ -1,9 +1,1 @@
-{
-  "appId": "ai.panchang.regional",
-  "appName": "Regional Panchang",
-  "webDir": ".",
-  "bundledWebRuntime": false,
-  "server": {
-    "androidScheme": "https"
-  }
-}
+{"appId":"ai.panchang.regional","appName":"Regional Panchang","webDir":".","bundledWebRuntime":false,"plugins":{"SplashScreen":{"launchAutoHide":true,"launchShowDuration":700,"backgroundColor":"#8b3f20","showSpinner":false,"androidScaleType":"CENTER_CROP","splashFullScreen":true,"splashImmersive":true}},"server":{"androidScheme":"https"}}
