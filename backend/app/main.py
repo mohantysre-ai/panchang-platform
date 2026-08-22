@@ -281,6 +281,8 @@ def calendar_month(
     year: int | None = Query(None),
     month: int | None = Query(None),
     timezone: str = Query(settings.default_timezone),
+    lat: float = Query(settings.default_lat, ge=-90, le=90),
+    lon: float = Query(settings.default_lon, ge=-180, le=180),
 ):
     try:
         ZoneInfo(timezone)
@@ -291,10 +293,10 @@ def calendar_month(
     month = month or today.month
     month = month if 1 <= month <= 12 else today.month
     state_code = state_code.upper()
-    key = f"calmonth:{year}:{month}:{state_code}:{timezone}"
+    key = f"calmonth:v2:{year}:{month}:{state_code}:{lat:.4f}:{lon:.4f}:{timezone}"
 
     def generate():
-        data = month_calendar(year, month, timezone, state_code)
+        data = month_calendar(year, month, timezone, state_code, lat, lon)
         data["calendar_style"] = state_style(state_code)
         data["regional_month_name"] = regional_month_name(state_code, month)
         data["regional_accent"] = available_states()[state_code]["accent"]
