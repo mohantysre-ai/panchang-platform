@@ -73,8 +73,13 @@ def _marks_for_tithi(tithi_index: int) -> list[str]:
         marks.append("amavasya")
     return marks
 
-def day_lunar_summary(target_date: date, timezone_name: str) -> dict:
-    """Fast noon-based lunar summary for calendar cells (no rise/set)."""
+def day_lunar_summary(
+    target_date: date,
+    timezone_name: str,
+    lat: float | None = None,
+    lon: float | None = None,
+) -> dict:
+    """Lunar summary and, when coordinates are supplied, local rise/set times."""
     tz = ZoneInfo(timezone_name)
     noon = datetime(target_date.year, target_date.month, target_date.day, 12, 0, tzinfo=tz)
     sun, moon = sidereal_longitudes(noon)
@@ -82,6 +87,11 @@ def day_lunar_summary(target_date: date, timezone_name: str) -> dict:
     weekday = (target_date.weekday() + 1) % 7
     t = tithi(sun, moon)
     n = nakshatra(moon)
+    sunrise = sunset = None
+    if lat is not None and lon is not None:
+        sunrise_dt, sunset_dt = rise_set(target_date, lat, lon, timezone_name)
+        sunrise = sunrise_dt.strftime("%H:%M") if sunrise_dt else None
+        sunset = sunset_dt.strftime("%H:%M") if sunset_dt else None
     return {
         "date": target_date.isoformat(),
         "day": target_date.day,
@@ -92,14 +102,27 @@ def day_lunar_summary(target_date: date, timezone_name: str) -> dict:
         "nakshatra_index": n["index"],
         "nakshatra_name": n["name"],
         "pada": n["pada"],
+        "moon_rashi_index": int(moon // 30) + 1,
+        "sunrise": sunrise,
+        "sunset": sunset,
         "yoga_index": yoga(sun, moon)["index"],
         "karana_name": karana(diff)["name"],
         "marks": _marks_for_tithi(t["index"]),
     }
 
-def month_calendar(year: int, month: int, timezone_name: str, state_code: str) -> dict:
+def month_calendar(
+    year: int,
+    month: int,
+    timezone_name: str,
+    state_code: str,
+    lat: float | None = None,
+    lon: float | None = None,
+) -> dict:
     _, days = monthrange(year, month)
-    cells = [day_lunar_summary(date(year, month, d), timezone_name) for d in range(1, days + 1)]
+    cells = [
+        day_lunar_summary(date(year, month, d), timezone_name, lat, lon)
+        for d in range(1, days + 1)
+    ]
     return {
         "year": year,
         "month": month,
