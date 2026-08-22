@@ -714,6 +714,46 @@ let skyTone = "day";
 function lang() {
   return I.stateLang[$("state").value] || "kn";
 }
+
+const BROWSER_LANG_STATE = {
+  hi: "UP", kn: "KA", ta: "TN", te: "TS", mr: "MH", or: "OD",
+  bn: "WB", as: "AS", pa: "PB", gu: "GJ", ml: "KL",
+};
+
+function browserLocaleState() {
+  const code = String(navigator.languages?.[0] || navigator.language || "hi")
+    .toLowerCase().split("-")[0];
+  return BROWSER_LANG_STATE[code] || "UP";
+}
+
+async function applyAutomaticLocale() {
+  const fallbackState = browserLocaleState();
+  if (!navigator.geolocation) {
+    $("state").value = fallbackState;
+    $("lang").value = lang();
+    return;
+  }
+  try {
+    const position = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: false, timeout: 6000, maximumAge: 3600000,
+      })
+    );
+    const { latitude, longitude } = position.coords;
+    $("lat").value = latitude.toFixed(6);
+    $("lon").value = longitude.toFixed(6);
+    const qs = new URLSearchParams({ lat: latitude, lon: longitude });
+    const resolved = await fetch(`/api/v1/location/resolve?${qs}`).then((r) => {
+      if (!r.ok) throw new Error(`location resolver ${r.status}`);
+      return r.json();
+    });
+    const stateCode = resolved.state_code;
+    $("state").value = I.stateLang[stateCode] ? stateCode : fallbackState;
+  } catch (_) {
+    $("state").value = fallbackState;
+  }
+  $("lang").value = lang();
+}
 function ui() { return I.ui[lang()] || I.ui.hi; }
 function N(value) {
   // Convert Western digits → regional script digits (never leave English 0-9 in UI copy).
@@ -1603,9 +1643,6 @@ function shiftMonth(delta) {
 $("date").value = todayIso();
 viewYear = Number($("date").value.slice(0, 4));
 viewMonth = Number($("date").value.slice(5, 7));
-$("state").value = "MH";
-$("lang").value = "mr";
-applyChrome();
 
 $("prevMonth").addEventListener("click", () => shiftMonth(-1));
 $("nextMonth").addEventListener("click", () => shiftMonth(1));
@@ -1634,8 +1671,13 @@ $("date").addEventListener("change", async () => {
   await loadMonthGrid();
   await loadAll();
 });
-loadAll();
-syncDateDisplay();
+async function initializeApp() {
+  await applyAutomaticLocale();
+  applyChrome();
+  syncDateDisplay();
+  await loadAll();
+}
+initializeApp();
 </script>
 </body>
 </html>
