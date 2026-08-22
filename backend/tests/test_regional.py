@@ -19,3 +19,11 @@ def test_regional_month_name_exists():
     for code in EXPECTED_CODES:
         assert regional_month_name(code, 1)
         assert regional_month_name(code, 12)
+from app.main import _state_code_from_address
+
+
+def test_state_code_from_reverse_geocoder_address():
+    assert _state_code_from_address({"ISO3166-2-lvl4": "IN-OD"}) == "OD"
+    assert _state_code_from_address({"state": "Karnataka"}) == "KA"
+    assert _state_code_from_address({"state": "Maharashtra"}) == "MH"
+    assert _state_code_from_address({"state": "Unknown"}) is None
