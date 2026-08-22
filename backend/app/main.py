@@ -1,4 +1,7 @@
+import json
 import os
+import urllib.parse
+import urllib.request
 from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -44,6 +47,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+INDIAN_STATE_CODES = {
+    "andaman and nicobar islands": "AN", "andhra pradesh": "AP",
+    "arunachal pradesh": "AR", "assam": "AS", "bihar": "BR",
+    "chandigarh": "CH", "chhattisgarh": "CG",
+    "dadra and nagar haveli and daman and diu": "DN", "delhi": "DL",
+    "goa": "GA", "gujarat": "GJ", "haryana": "HR",
+    "himachal pradesh": "HP", "jammu and kashmir": "JK", "jharkhand": "JH",
+    "karnataka": "KA", "kerala": "KL", "ladakh": "LA",
+    "lakshadweep": "LD", "madhya pradesh": "MP", "maharashtra": "MH",
+    "manipur": "MN", "meghalaya": "ML", "mizoram": "MZ", "nagaland": "NL",
+    "odisha": "OD", "puducherry": "PY", "punjab": "PB",
+    "rajasthan": "RJ", "sikkim": "SK", "tamil nadu": "TN",
+    "telangana": "TS", "tripura": "TR", "uttar pradesh": "UP",
+    "uttarakhand": "UK", "west bengal": "WB",
+}
+
+
+def _state_code_from_address(address: dict) -> str | None:
+    """Convert a reverse-geocoder address into the app's state code."""
+    iso_code = str(address.get("ISO3166-2-lvl4") or "").upper()
+    if iso_code.startswith("IN-"):
+        return iso_code[3:]
+    state = str(address.get("state") or address.get("state_district") or "").strip().lower()
+    return INDIAN_STATE_CODES.get(state)
+
 
 @app.on_event("startup")
 def startup():
@@ -72,6 +100,32 @@ def health():
 @app.get("/api/v1/states")
 def states():
     return {"states": available_states(), "languages": LANGUAGES}
+
+
+@app.get("/api/v1/location/resolve")
+def resolve_location(
+    lat: float = Query(..., ge=-90, le=90),
+    lon: float = Query(..., ge=-180, le=180),
+):
+    """Resolve browser coordinates to an Indian state without exposing them to the UI."""
+    query = urllib.parse.urlencode({
+        "format": "jsonv2", "lat": f"{lat:.6f}", "lon": f"{lon:.6f}",
+        "zoom": 5, "addressdetails": 1,
+    })
+    request = urllib.request.Request(
+        f"https://nominatim.openstreetmap.org/reverse?{query}",
+        headers={"User-Agent": "panchang-platform/3.2 (location locale resolver)"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=4) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        address = payload.get("address") or {}
+        return {
+            "state_code": _state_code_from_address(address),
+            "country_code": str(address.get("country_code") or "").upper(),
+        }
+    except Exception:
+        return {"state_code": None, "country_code": None}
 
 
 @app.get("/api/v1/panchang")
@@ -242,6 +296,8 @@ def calendar_month(
     year: int | None = Query(None),
     month: int | None = Query(None),
     timezone: str = Query(settings.default_timezone),
+    lat: float = Query(settings.default_lat, ge=-90, le=90),
+    lon: float = Query(settings.default_lon, ge=-180, le=180),
 ):
     try:
         ZoneInfo(timezone)
@@ -252,10 +308,10 @@ def calendar_month(
     month = month or today.month
     month = month if 1 <= month <= 12 else today.month
     state_code = state_code.upper()
-    key = f"calmonth:{year}:{month}:{state_code}:{timezone}"
+    key = f"calmonth:v2:{year}:{month}:{state_code}:{lat:.4f}:{lon:.4f}:{timezone}"
 
     def generate():
-        data = month_calendar(year, month, timezone, state_code)
+        data = month_calendar(year, month, timezone, state_code, lat, lon)
         data["calendar_style"] = state_style(state_code)
         data["regional_month_name"] = regional_month_name(state_code, month)
         data["regional_accent"] = available_states()[state_code]["accent"]
