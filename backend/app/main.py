@@ -1,3 +1,4 @@
+import os
 from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -16,7 +17,21 @@ from .rashifal import LANGUAGES, build_rashi_detail, enrich_rows_detailed, fetch
 from .regional_v2 import available_states, regional_month_name, regional_timings, state_style
 from .storage import ensure_dirs, get_or_create
 
-FRONTEND = Path(__file__).resolve().parents[2] / "frontend"
+
+def _resolve_frontend_dir() -> Path:
+    env_dir = os.environ.get("FRONTEND_DIR")
+    candidates = []
+    if env_dir:
+        candidates.append(Path(env_dir))
+    candidates.append(Path(__file__).resolve().parents[2] / "frontend")
+    candidates.append(Path("/frontend"))
+    for path in candidates:
+        if path.exists():
+            return path
+    return candidates[0]
+
+
+FRONTEND = _resolve_frontend_dir()
 DIST = FRONTEND / "dist"
 REACT_ASSETS = DIST / "_app"
 

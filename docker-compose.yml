@@ -1,24 +1,47 @@
 services:
   api:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: panchang-api:latest
+    container_name: panchang-api
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8088:8088"
     env_file:
       - ./backend/.env
     environment:
-      REDIS_URL: redis://redis:6379/0
-      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/panchang
+      PORT: "8088"
+      FRONTEND_DIR: /frontend
+      REDIS_ENABLED: "false"
+      POSTGRES_ENABLED: "false"
+      JSON_STORAGE_ENABLED: "true"
     volumes:
       - ./backend/data:/app/data
-    depends_on:
-      - redis
-      - postgres
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8088/api/v1/health', timeout=4)",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+    networks:
+      - default
+      - trade_api_default
 
+  # Optional extras — enable with: docker compose --profile full up -d
   redis:
+    profiles: ["full"]
     image: redis:7-alpine
     restart: unless-stopped
 
   postgres:
+    profiles: ["full"]
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
@@ -30,3 +53,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  trade_api_default:
+    external: true

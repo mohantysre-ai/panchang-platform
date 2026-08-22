@@ -27,18 +27,27 @@ A state-adaptive Hindu Panchang and calendar platform built around deterministic
 - Capacitor 8 Android/iOS shell configuration
 - JSON storage, optional Redis, optional PostgreSQL
 
-## Run
+## Run (local)
 
 ```bash
 cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8088
 ```
 
-Open `http://localhost:8000` and `http://localhost:8000/docs`.
+Open `http://localhost:8088` and `http://localhost:8088/docs`.
 
+## Run (Docker + Cloudflare)
+
+Uses host port **8088** (avoids IROS 8000/8001/3000). Public URL: **https://calendar.sigq.in**
+
+```bash
+docker compose up -d --build
+```
+
+Optional Redis/Postgres: `docker compose --profile full up -d --build`
 ## APIs
 
 - `GET /api/v1/health`
