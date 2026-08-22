@@ -1,5 +1,5 @@
 /* Network-first shell assets so drawer font / calendar icon updates are not stuck on old Hindi-font CSS */
-const CACHE = "regional-panchang-v7";
+const CACHE = "regional-panchang-v8";
 const SHELL = [
   "/",
   "/manifest.webmanifest",
