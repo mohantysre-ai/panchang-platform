@@ -1,3 +1,6 @@
+import json
+import urllib.parse
+import urllib.request
 from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -29,6 +32,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+INDIAN_STATE_CODES = {
+    "andaman and nicobar islands": "AN", "andhra pradesh": "AP",
+    "arunachal pradesh": "AR", "assam": "AS", "bihar": "BR",
+    "chandigarh": "CH", "chhattisgarh": "CG",
+    "dadra and nagar haveli and daman and diu": "DN", "delhi": "DL",
+    "goa": "GA", "gujarat": "GJ", "haryana": "HR",
+    "himachal pradesh": "HP", "jammu and kashmir": "JK", "jharkhand": "JH",
+    "karnataka": "KA", "kerala": "KL", "ladakh": "LA",
+    "lakshadweep": "LD", "madhya pradesh": "MP", "maharashtra": "MH",
+    "manipur": "MN", "meghalaya": "ML", "mizoram": "MZ", "nagaland": "NL",
+    "odisha": "OD", "puducherry": "PY", "punjab": "PB",
+    "rajasthan": "RJ", "sikkim": "SK", "tamil nadu": "TN",
+    "telangana": "TS", "tripura": "TR", "uttar pradesh": "UP",
+    "uttarakhand": "UK", "west bengal": "WB",
+}
+
+
+def _state_code_from_address(address: dict) -> str | None:
+    """Convert a reverse-geocoder address into the app's state code."""
+    iso_code = str(address.get("ISO3166-2-lvl4") or "").upper()
+    if iso_code.startswith("IN-"):
+        return iso_code[3:]
+    state = str(address.get("state") or address.get("state_district") or "").strip().lower()
+    return INDIAN_STATE_CODES.get(state)
+
 
 @app.on_event("startup")
 def startup():
@@ -57,6 +85,32 @@ def health():
 @app.get("/api/v1/states")
 def states():
     return {"states": available_states(), "languages": LANGUAGES}
+
+
+@app.get("/api/v1/location/resolve")
+def resolve_location(
+    lat: float = Query(..., ge=-90, le=90),
+    lon: float = Query(..., ge=-180, le=180),
+):
+    """Resolve browser coordinates to an Indian state without exposing them to the UI."""
+    query = urllib.parse.urlencode({
+        "format": "jsonv2", "lat": f"{lat:.6f}", "lon": f"{lon:.6f}",
+        "zoom": 5, "addressdetails": 1,
+    })
+    request = urllib.request.Request(
+        f"https://nominatim.openstreetmap.org/reverse?{query}",
+        headers={"User-Agent": "panchang-platform/3.2 (location locale resolver)"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=4) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        address = payload.get("address") or {}
+        return {
+            "state_code": _state_code_from_address(address),
+            "country_code": str(address.get("country_code") or "").upper(),
+        }
+    except Exception:
+        return {"state_code": None, "country_code": None}
 
 
 @app.get("/api/v1/panchang")
