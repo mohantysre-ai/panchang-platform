@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: panchang-api:latest
+    image: smohanty010620/panchang-api:latest
     container_name: panchang-api
     restart: unless-stopped
     ports:
