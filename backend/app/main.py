@@ -438,6 +438,12 @@ def fonts_css():
     return FileResponse(FRONTEND / "fonts.css", media_type="text/css")
 
 
+@app.get("/privacy")
+@app.get("/privacy.html")
+def privacy_policy():
+    return FileResponse(FRONTEND / "privacy.html", media_type="text/html")
+
+
 app.mount("/assets", StaticFiles(directory=FRONTEND / "assets"), name="assets")
 REACT_ASSETS.mkdir(parents=True, exist_ok=True)
 app.mount("/_app", StaticFiles(directory=REACT_ASSETS), name="react_assets")
