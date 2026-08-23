@@ -770,7 +770,7 @@ function browserLocaleState() {
 }
 
 async function applyAutomaticLocale() {
-  const fallbackState = browserLocaleState();
+  const fallbackState = "KA";
   if (!navigator.geolocation) {
     $("state").value = fallbackState;
     $("lang").value = lang();
@@ -791,7 +791,11 @@ async function applyAutomaticLocale() {
       return r.json();
     });
     const stateCode = resolved.state_code;
-    $("state").value = I.stateLang[stateCode] ? stateCode : fallbackState;
+    if (stateCode && I.stateLang[stateCode]) {
+      $("state").value = stateCode;
+    } else {
+      $("state").value = fallbackState;
+    }
   } catch (_) {
     $("state").value = fallbackState;
   }
@@ -858,7 +862,7 @@ function stateArtUrl(code) {
     "AP","AS","BR","CG","DL","GA","GJ","HP","HR","JH","JK","KA","KL","MH",
     "MP","OD","PB","RJ","TN","TS","UK","UP","WB",
   ]);
-  const use = known.has(key) ? key : "MH";
+  const use = known.has(key) ? key : "KA";
   return `/assets/states/state-${use}.png`;
 }
 
@@ -985,7 +989,7 @@ function nativeStateName(code) {
 
 function fillStateOptions() {
   const sel = $("state");
-  const cur = sel.value || "MH";
+  const cur = sel.value || "KA";
   const codes = [
     ...new Set([
       ...Object.keys(window.NATIVE_STATE_NAMES || {}),
@@ -1003,7 +1007,7 @@ function fillStateOptions() {
     .filter(Boolean)
     .join("");
   if (codes.includes(cur)) sel.value = cur;
-  else sel.value = codes.includes("MH") ? "MH" : codes[0] || "";
+  else sel.value = codes.includes("KA") ? "KA" : codes[0] || "";
   $("lang").value = lang();
 }
 
@@ -1069,15 +1073,38 @@ function festivalIconSrc(events) {
     .map((e) => `${e.id || ""} ${e.names?.en || ""} ${e.names?.hi || ""}`.toLowerCase())
     .join(" ");
   const rules = [
-    [/diwali|deepavali|kali\s*puja|naraka/, "diwali"],
-    [/sankranti|pongal|makar|bih|lohri|vishu/, "sankranti"],
-    [/holi|dol\s*purnima|dhuliyandan|rang/, "holi"],
+    [/diwali|deepavali|kali\s*puja|naraka|lakshmi|dhanteras|bhai\s*dooj/, "diwali"],
+    [/sankranti|pongal|makar|bih|lohri|vishu|uthara|uttara\s*ayan/, "sankranti"],
+    [/holi|dol\s*purnima|dhuliyandan|rang|holika\s*dahan/, "holi"],
     [/ganesh|vinayak|ganapati/, "ganesh"],
-    [/navratri|durga|dashami|vijaya/, "navratri"],
+    [/navratri|durga|dashami|vijaya|dussehra|dushera/, "navratri"],
     [/durga|kali(?!\s*puja)/, "durga"],
-    [/shiv|mahasiv|shivaratri|pradosh/, "shiv"],
+    [/shiv|mahasiv|shivaratri|pradosh|kalabhairava/, "shiv"],
     [/krishna|janmashtami|jayanti.*krish/, "krishna"],
     [/ram|ramanavami|sita/, "rama"],
+    [/ugadi|yugadi|gudi\s*padwa/, "ugadi"],
+    [/akshaya|akshay|akshaya\s*tritiya/, "akshaya"],
+    [/guru|poornima|purnima|guru\s*purnima/, "guru"],
+    [/raksha|rakhi|raksha\s*bandhan/, "raksha-bandhan"],
+    [/hanuman|hanuman\s*jayanti/, "hanuman"],
+    [/karwa|karwa\s*chauth/, "karwa-chauth"],
+    [/chhath|chhath\s*puja/, "chhath"],
+    [/jagannath|rath\s*yatra|ratha\s*saptami/, "jagannath"],
+    [/saraswati|vasant\s*panchami/, "saraswati"],
+    [/buddha|buddha\s*purnima|buddha\s*jayanti/, "buddha"],
+    [/parashurama|parashurama\s*jayanti/, "parashurama"],
+    [/nag\s*panchami/, "nag-panchami"],
+    [/shakambari/, "shakambari"],
+    [/ganga\s*dussehra|ganga/, "ganga"],
+    [/pitru|pitri|pitr|pitru\s*paksha/, "pitru-paksha"],
+    [/tulsi|tulsi\s*vivah/, "tulsi"],
+    [/vat\s*savitri/, "vat-savitri"],
+    [/skanda|skanda\s*shashti/, "skanda"],
+    [/shani|shani\s*jayanti/, "shani"],
+    [/vishnu|vishnu\s*jayanti/, "vishnu"],
+    [/govardhan|govardhan\s*puja/, "govardhan"],
+    [/gita|gita\s*jayanti/, "gita"],
+    [/ratha\s*saptami/, "ratha-saptami"],
     [/ekadashi/, "default"],
   ];
   for (const [re, key] of rules) {
