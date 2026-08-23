@@ -328,12 +328,12 @@ def _inject_classic(html: str) -> str:
     inject = (
         '<link rel="manifest" href="/manifest.webmanifest">'
         '<meta http-equiv="Cache-Control" content="no-cache">'
-        '<link rel="stylesheet" href="/regional-ui.css?v=11">'
+        '<link rel="stylesheet" href="/regional-ui.css?v=13">'
         '<link rel="stylesheet" href="/app-shell.css?v=9">'
         '<script defer src="/share-card.js?v=1"></script>'
         '<script defer src="/live-activity.js?v=1"></script>'
         '<script defer src="/classic-extras.js?v=1"></script>'
-        '<script defer src="/regional-ui.js?v=11"></script>'
+        '<script defer src="/regional-ui.js?v=13"></script>'
         '<script defer src="/app-shell.js?v=9"></script>'
         '<script defer src="/launch-enhancements.js?v=5"></script>'
     )

@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from .ephemeris import sidereal_longitudes, rise_set
 from .storage import get_or_create
 from .regional_v2 import STATE_CONFIGS
-from .festival_recurring import recurring_festival_definitions
+from .festival_recurring import recurring_festival_definitions, generic_paksha_vrata_definitions
 DATA_FILE=Path(__file__).resolve().parents[1]/"data"/"festivals.json"
 CATEGORY_ORDER={"major":0,"regional":1,"minor":2,"vrata":3}
 AMANTA_MONTHS=["Chaitra","Vaishakha","Jyeshtha","Ashadha","Shravana","Bhadrapada","Ashwin","Kartika","Margashirsha","Pausha","Magha","Phalguna"]
@@ -15,7 +15,7 @@ SOLAR_MONTHS={"tamil":["Chithirai","Vaikasi","Aani","Aadi","Avani","Purattasi","
 _AMAVASYA_SIGN_TO_MONTH=lambda sign:((sign+1)%12)+1
 def _load_definitions():
     with DATA_FILE.open("r",encoding="utf-8") as fh:static=json.load(fh)["festivals"]
-    return static+recurring_festival_definitions()
+    return static+recurring_festival_definitions()+generic_paksha_vrata_definitions()
 def _applies(defn,state_code):
     states={s.upper() for s in defn.get("states",["ALL"])};return "ALL" in states or state_code.upper() in states
 def _phase(dt):
@@ -80,10 +80,37 @@ def _matches(defn,target,lat,lon,timezone,state):
         if not lm or lm["index"]!=rule["lunar_month"] or (lm.get("adhika") and not rule.get("allow_adhika",False)):return False
     return True
 def _event(defn,target):return {"id":defn["id"],"date":target.isoformat(),"category":defn.get("category","major"),"names":defn.get("names",{}),"accuracy":defn.get("accuracy","astronomical-rule"),"source_rule":defn["rule"]["type"]}
+_MAJOR_OVER_GENERIC={
+    "ganesha_chaturthi":("vinayaka_chaturthi","vrata_vinayaka_chaturthi"),
+    "krishna_janmashtami":("vrata_krishna_ashtami",),
+    "ram_navami":("vrata_shukla_navami",),
+    "nag_panchami":("vrata_shukla_panchami",),
+    "dussehra":("vrata_shukla_dashami",),
+    "naraka_chaturdashi":("vrata_krishna_chaturdashi",),
+    "nuakhai":("vrata_shukla_panchami",),
+}
+def _dedupe_events(events):
+    ids={e["id"] for e in events};drop=set()
+    for major,prefixes in _MAJOR_OVER_GENERIC.items():
+        if major not in ids:continue
+        for eid in ids:
+            if any(eid==p or eid.startswith(f"{p}_") for p in prefixes):drop.add(eid)
+    def _slot(event_id):
+        if event_id.startswith("vrata_"):return event_id.removeprefix("vrata_")
+        if "_" not in event_id:return None
+        head,tail=event_id.rsplit("_",1)
+        return head if tail.isdigit() else None
+    named_slots={s for i in ids if (s:=_slot(i)) and not i.startswith("vrata_")}
+    for e in events:
+        if e["id"].startswith("vrata_") and e["id"].removeprefix("vrata_") in named_slots:drop.add(e["id"])
+    return [e for e in events if e["id"] not in drop]
 def resolve_festivals(target,state_code,lat,lon,timezone):
-    events=[_event(d,target) for d in _load_definitions() if _applies(d,state_code) and _matches(d,target,lat,lon,timezone,state_code)];events.sort(key=lambda x:(CATEGORY_ORDER.get(x["category"],9),x["id"]));return {"date":target.isoformat(),"state_code":state_code.upper(),"timezone":timezone,"events":events,"engine":"Swiss Ephemeris + sunrise tithi + Amavasya lunar-month resolver"}
+    events=[_event(d,target) for d in _load_definitions() if _applies(d,state_code) and _matches(d,target,lat,lon,timezone,state_code)]
+    events=_dedupe_events(events)
+    events.sort(key=lambda x:(CATEGORY_ORDER.get(x["category"],9),x["id"]))
+    return {"date":target.isoformat(),"state_code":state_code.upper(),"timezone":timezone,"events":events,"engine":"Swiss Ephemeris + sunrise tithi + Amavasya lunar-month resolver"}
 def festivals_for_date(target,state_code,lat,lon,timezone):
-    key=f"festivals:v6:{target}:{state_code.upper()}:{lat:.5f}:{lon:.5f}:{timezone}";return get_or_create(key,"festivals",lambda:resolve_festivals(target,state_code,lat,lon,timezone))
+    key=f"festivals:v7:{target}:{state_code.upper()}:{lat:.5f}:{lon:.5f}:{timezone}";return get_or_create(key,"festivals",lambda:resolve_festivals(target,state_code,lat,lon,timezone))
 def festivals_for_month(year,month,state_code,lat,lon,timezone):
     start=date(year,month,1);next_month=date(year+(month==12),1 if month==12 else month+1,1);events=[];cursor=start
     while cursor<next_month:events.extend(festivals_for_date(cursor,state_code,lat,lon,timezone)["events"]);cursor+=timedelta(days=1)
