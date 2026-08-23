@@ -6,6 +6,7 @@ from .database import audit
 def ensure_dirs():
     (settings.absolute_data_dir/"panchang").mkdir(parents=True,exist_ok=True)
     (settings.absolute_data_dir/"rashifal").mkdir(parents=True,exist_ok=True)
+    (settings.absolute_data_dir/"festivals").mkdir(parents=True,exist_ok=True)
 
 def safe_key(x):
     return x.replace("/","_").replace("\\","_").replace(":","_").replace(" ","_")

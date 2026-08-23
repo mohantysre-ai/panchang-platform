@@ -1,0 +1,7 @@
+{
+  "date": "2026-08-03",
+  "state_code": "OD",
+  "timezone": "Asia/Kolkata",
+  "events": [],
+  "engine": "Swiss Ephemeris + sunrise tithi + Purnima-nakshatra lunar-month resolver"
+}

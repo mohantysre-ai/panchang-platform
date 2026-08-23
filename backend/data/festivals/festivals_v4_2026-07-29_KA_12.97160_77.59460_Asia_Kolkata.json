@@ -1,0 +1,19 @@
+{
+  "date": "2026-07-29",
+  "state_code": "KA",
+  "timezone": "Asia/Kolkata",
+  "events": [
+    {
+      "id": "raksha_bandhan",
+      "date": "2026-07-29",
+      "category": "major",
+      "names": {
+        "en": "Raksha Bandhan",
+        "hi": "रक्षाबंधन"
+      },
+      "accuracy": "astronomical-rule",
+      "source_rule": "tithi"
+    }
+  ],
+  "engine": "Swiss Ephemeris + sunrise tithi + Purnima-nakshatra lunar-month resolver"
+}

@@ -1,0 +1,7 @@
+{
+  "date": "2026-07-28",
+  "state_code": "KA",
+  "timezone": "Asia/Kolkata",
+  "events": [],
+  "engine": "Swiss Ephemeris + sunrise tithi + Purnima-nakshatra lunar-month resolver"
+}
