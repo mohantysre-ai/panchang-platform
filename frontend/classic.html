@@ -514,7 +514,7 @@ body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
   letter-spacing:.04em;
 }
 .panji-cell{
-  position:relative;min-height:168px;padding:7px;border:0;
+  position:relative;min-height:224px;padding:7px;border:0;
   background:rgba(255,255,255,.07);color:var(--cal-ink);font:inherit;text-align:left;cursor:pointer;
   display:flex;flex-direction:column;gap:5px;border-radius:14px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
@@ -1117,6 +1117,8 @@ function cellHtml(day) {
   const tithiNames = I.tithi[L] || I.tithi.hi;
   const nakshatraNames = I.nakshatra[L] || I.nakshatra.hi;
   const rashiNames = I.rashi[L] || I.rashi.hi;
+  const yogaNames = I.yoga[L] || I.yoga.hi;
+  const karanaNames = I.karana[L] || I.karana.hi;
   const events = monthFestivalsByDate[day.date] || [];
   const festTitle = events
     .map((e) => e.names?.[L] || e.names?.en || e.id)
@@ -1131,6 +1133,8 @@ function cellHtml(day) {
   const moonIcon = moonPhaseSrc(day.tithi_index);
   const starIcon = nakshatraSrc(day.nakshatra_index);
   const festivalIcon = festivalIconSrc(events);
+  const yogaName = yogaNames[(day.yoga_index || 1) - 1] || "—";
+  const karanaName = karanaNames[day.karana_name] || day.karana_name || "—";
   return `<button type="button" class="${cls.join(" ")}" data-iso="${day.date}" title="${escAttr(festTitle || "")}">
     <span class="cell-date">
       <span class="solar">☀ ${day.sunrise || "—"}</span>
@@ -1140,6 +1144,8 @@ function cellHtml(day) {
     <span class="tithi">${shortTerm(tithiNames[day.tithi_index - 1] || day.tithi_name)}</span>
     <span class="astro-line"><img src="${moonIcon}" alt="">${shortTerm(rashiNames[day.moon_rashi_index - 1] || "—")}</span>
     <span class="astro-line"><img src="${starIcon}" alt="">${shortTerm(nakshatraNames[day.nakshatra_index - 1] || day.nakshatra_name)} · ${N(day.pada)}</span>
+    <span class="astro-line"><img src="/assets/panji/yoga.svg" alt="">${shortTerm(yogaName)}</span>
+    <span class="astro-line"><img src="/assets/panji/karana.svg" alt="">${shortTerm(karanaName)}</span>
     ${festTitle ? `<span class="festival-name"><img src="${festivalIcon}" alt="">${escAttr(festTitle)}</span>` : ""}
   </button>`;
 }
