@@ -73,6 +73,17 @@ def _state_code_from_address(address: dict) -> str | None:
     return INDIAN_STATE_CODES.get(state)
 
 
+def _coarsen(lat: float, lon: float) -> tuple[float, float]:
+    """Round coordinates to ~2 decimal places (~1.1 km) before any use.
+
+    The app never calculates, transmits, or stores a user's exact GPS
+    position. Rounding to 2 decimals keeps the Panchang accurate to the
+    ~1 km area while ensuring no precise location ever leaves the device
+    or enters a cache key / third-party request.
+    """
+    return round(lat, 2), round(lon, 2)
+
+
 @app.on_event("startup")
 def startup():
     ensure_dirs()
@@ -108,8 +119,9 @@ def resolve_location(
     lon: float = Query(..., ge=-180, le=180),
 ):
     """Resolve browser coordinates to an Indian state without exposing them to the UI."""
+    lat, lon = _coarsen(lat, lon)
     query = urllib.parse.urlencode({
-        "format": "jsonv2", "lat": f"{lat:.6f}", "lon": f"{lon:.6f}",
+        "format": "jsonv2", "lat": f"{lat:.2f}", "lon": f"{lon:.2f}",
         "zoom": 5, "addressdetails": 1,
     })
     request = urllib.request.Request(
@@ -142,7 +154,8 @@ def panchang(
         timezone = settings.default_timezone
     target = date.fromisoformat(date_str) if date_str else current_date(timezone)
     state_code = state_code.upper()
-    key = f"panchang:{target}:{state_code}:{lat:.5f}:{lon:.5f}:{timezone}"
+    lat, lon = _coarsen(lat, lon)
+    key = f"panchang:{target}:{state_code}:{lat:.2f}:{lon:.2f}:{timezone}"
 
     def generate():
         data = calculate_panchang(target, lat, lon, timezone, state_code)
@@ -201,10 +214,11 @@ def rashifal_detail(
     except Exception:
         timezone = settings.default_timezone
     target = date.fromisoformat(date_str) if date_str else current_date(timezone)
+    lat, lon = _coarsen(lat, lon)
 
     bundle = get_or_create(f"rashifal:{target}:{lang}", "rashifal", lambda: generate_rashifal(lang, target))
     rows = enrich_rows_detailed(list(bundle.get("rashifal") or []), lang)
-    sign_key = (sign or "aries").strip().lower()
+    sign_key = (sign or "").strip().lower()
     row = next((r for r in rows if (r.get("sign") or "").lower() == sign_key), None)
     if row is None and rows:
         # fall back by index order of RASHI_META
@@ -212,7 +226,7 @@ def rashifal_detail(
         idx = next((i for i, m in enumerate(RASHI_META) if m["sign"] == sign_key), 0)
         row = rows[idx] if idx < len(rows) else rows[0]
 
-    pan_key = f"panchang:{target}:{state_code}:{lat:.5f}:{lon:.5f}:{timezone}"
+    pan_key = f"panchang:{target}:{state_code}:{lat:.2f}:{lon:.2f}:{timezone}"
 
     def gen_pan():
         data = calculate_panchang(target, lat, lon, timezone, state_code)
@@ -264,6 +278,7 @@ def festivals(
     except Exception:
         timezone = settings.default_timezone
     state_code = state_code.upper()
+    lat, lon = _coarsen(lat, lon)
     if year is not None or month is not None:
         today = current_date(timezone)
         y = year or today.year
@@ -287,6 +302,7 @@ def lunar_month(
     except Exception:
         timezone = settings.default_timezone
     target = date.fromisoformat(date_str) if date_str else current_date(timezone)
+    lat, lon = _coarsen(lat, lon)
     return lunar_month_for_date(target, state_code, lat, lon, timezone)
 
 
@@ -308,7 +324,8 @@ def calendar_month(
     month = month or today.month
     month = month if 1 <= month <= 12 else today.month
     state_code = state_code.upper()
-    key = f"calmonth:v2:{year}:{month}:{state_code}:{lat:.4f}:{lon:.4f}:{timezone}"
+    lat, lon = _coarsen(lat, lon)
+    key = f"calmonth:v2:{year}:{month}:{state_code}:{lat:.2f}:{lon:.2f}:{timezone}"
 
     def generate():
         data = month_calendar(year, month, timezone, state_code, lat, lon)

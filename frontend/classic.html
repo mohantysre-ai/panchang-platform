@@ -975,9 +975,13 @@ async function applyAutomaticLocale() {
         })
       );
       const { latitude, longitude } = position.coords;
-      $("lat").value = latitude.toFixed(6);
-      $("lon").value = longitude.toFixed(6);
-      resolvedState = await resolveStateFromCoords(latitude, longitude);
+      // Coarsen to ~2 decimal places (~1.1 km) before storing or sending —
+      // the app never keeps or transmits the exact GPS position.
+      const lat = latitude.toFixed(2);
+      const lon = longitude.toFixed(2);
+      $("lat").value = lat;
+      $("lon").value = lon;
+      resolvedState = await resolveStateFromCoords(lat, lon);
     } catch (_) { /* fall through to coord / saved fallback */ }
   }
 
