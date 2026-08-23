@@ -5,6 +5,8 @@ __pycache__/
 .pytest_cache/
 backend/data/panchang/*.json
 backend/data/rashifal/*.json
+backend/data/festivals/festivals_v*.json
+data/festivals/festivals_v*.json
 .vscode/
 frontend/node_modules/
 frontend/dist/

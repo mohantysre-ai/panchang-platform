@@ -28,10 +28,11 @@
 
   function applyScale() {
     const v = Number(localStorage.getItem("panchang-font-scale") || 1);
-    document.documentElement.style.setProperty("--font-scale", v);
+    const safe = Number.isFinite(v) ? Math.max(0.85, Math.min(1.3, v)) : 1;
+    document.documentElement.style.setProperty("--font-scale", safe);
     document.body.classList.add("font-scaled");
     const o = $("#fontScale");
-    if (o) o.value = `${regionalDigits(Math.round(v * 100))}%`;
+    if (o) o.textContent = `${Math.round(safe * 100)}%`;
   }
   function a11y() {
     if ($(".a11y-bar")) return;

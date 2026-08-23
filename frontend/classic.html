@@ -152,7 +152,7 @@ body::before{
 @keyframes riseIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes softPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}50%{box-shadow:inset 0 0 0 1px rgba(255,200,120,.35)}}
 
-.app{width:min(480px,100%);margin:0 auto;min-height:100vh;padding:max(10px,env(safe-area-inset-top)) 12px 28px}
+.app{width:min(480px,100%);margin:0 auto;min-height:100vh;padding:max(10px,env(safe-area-inset-top)) 12px calc(72px + env(safe-area-inset-bottom,0px))}
 @media (min-width:960px){
   .app{width:min(1360px,100%);padding:20px 16px 36px}
   .desk{display:block}
@@ -555,10 +555,15 @@ body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
   box-shadow:0 0 0 1px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.08);
 }
 @media (min-width:960px){
-  .panji-grid{min-width:920px}
+  .panji-grid{min-width:0}
+  .panji-grid.cols{min-width:920px}
 }
 .panji-grid.cols{grid-template-columns:repeat(7,minmax(0,1fr))}
-.panji-grid.rows{grid-template-columns:42px repeat(6,minmax(42px,1fr))}
+.panji-grid.rows{grid-template-columns:var(--panji-rail,46px) repeat(var(--panji-weeks,6),minmax(0,1fr))}
+.panji-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (min-width:960px){
+  .panji-grid.rows{grid-template-columns:var(--panji-rail,52px) repeat(var(--panji-weeks,6),minmax(72px,1fr))}
+}
 .panji-hd{
   text-align:center;font-size:.68rem;font-weight:900;padding:9px 4px;
   color:rgba(220,238,255,.92);background:var(--cal-head-bg);
@@ -566,10 +571,10 @@ body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
   box-shadow:inset 0 -1px 0 rgba(255,255,255,.06);
 }
 .vaar-rail{
-  font-size:.58rem;font-weight:900;padding:4px 2px;text-align:center;
+  font-size:.58rem;font-weight:900;padding:6px 3px;text-align:center;
   background:var(--cal-rail-bg);color:rgba(220,238,255,.92);
   display:flex;align-items:center;justify-content:center;
-  letter-spacing:0;
+  letter-spacing:0;line-height:1.2;word-break:break-word;overflow:visible;min-width:0;
 }
 .panji-cell{
   position:relative;min-height:clamp(128px,24vw,224px);padding:8px;border:1px solid var(--cal-cell-line);
@@ -638,7 +643,7 @@ body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
 .panji-cell .num{display:block;font-size:1.72rem;font-weight:900;line-height:.95;color:#F4F8FF;font-family:var(--content-font),var(--ui-font),sans-serif;text-align:center;text-shadow:0 1px 8px rgba(0,0,0,.24)}
 .panji-cell .lunar-day{display:block;font-size:.62rem;color:rgba(190,220,255,.7);text-align:center;margin-top:2px}
 .panji-cell .tithi{display:block;font-size:.73rem;font-weight:900;color:#ffc978;text-align:center;line-height:1.25}
-.panji-cell .astro-line{display:flex;align-items:flex-start;gap:5px;font-size:.66rem;line-height:1.3;color:rgba(235,245,255,.86)}
+.panji-cell .astro-line{display:flex;align-items:flex-start;gap:5px;font-size:.66rem;line-height:1.3;color:rgba(235,245,255,.86);overflow:visible;word-break:break-word}
 .panji-cell .astro-line img{width:16px;height:16px;flex:0 0 16px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.28))}
 .panji-cell .festival-name{display:flex;align-items:flex-start;gap:5px;margin-top:auto;font-size:.64rem;line-height:1.28;font-weight:800;color:#ffe08a;border-top:1px dashed rgba(240,193,74,.35);padding-top:5px}
 .panji-cell .festival-name img{width:18px;height:18px;flex:0 0 18px;object-fit:contain}
@@ -654,17 +659,57 @@ body.theme-light .rashi-body .daily-title{color:rgba(26,18,8,.62)}
   box-shadow:0 0 0 1px rgba(255,255,255,.08);
 }
 @media (max-width:959px){
+  .panji-wrap.mobile-cal{
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;padding-bottom:4px;
+  }
+  .panji-grid.cols.mobile-cal{
+    min-width:714px;
+    grid-template-columns:repeat(7,minmax(96px,1fr));
+  }
+  .panji-grid.rows.mobile-cal{
+    min-width:max(100%,calc(var(--panji-rail,46px) + var(--panji-weeks,6) * 96px));
+    grid-template-columns:var(--panji-rail,40px) repeat(var(--panji-weeks,6),minmax(96px,1fr));
+  }
+  .panji-wrap.mobile-cal::after{
+    content:"← scroll →";display:block;text-align:center;font-size:.62rem;
+    color:var(--cal-muted);opacity:.75;padding:6px 0 2px;letter-spacing:.04em;
+  }
+  .panji-cell.mobile-compact{
+    min-height:88px;padding:5px 4px;overflow:hidden;
+  }
+  .panji-cell.mobile-compact .cell-date{
+    grid-template-columns:1fr;gap:0;padding-bottom:4px;border-bottom-color:rgba(170,210,255,.12);
+  }
+  .panji-cell.mobile-compact .solar{display:none}
+  .panji-cell.mobile-compact .lunar-day{display:none}
+  .panji-cell.mobile-compact .num{font-size:1.35rem;line-height:1}
+  .panji-cell.mobile-compact .tithi{
+    font-size:.58rem;line-height:1.2;max-height:2.4em;overflow:hidden;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    word-break:break-word;text-align:center;
+  }
+  .panji-cell.mobile-compact .astro-line{display:none}
+  .panji-cell.mobile-compact .festival-name{
+    font-size:.52rem;padding-top:3px;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:0;
+    display:block;text-align:center;
+  }
+  .panji-cell.mobile-compact .festival-name img{display:none}
+  .panji-cell.mobile-compact .fest-bg{background-size:min(78%,56px);opacity:.4;background-position:center 22%}
   .panji-cell .astro-line.compact-hide{display:none}
-  .panji-cell .solar{font-size:.54rem}
-  .panji-cell .num{font-size:clamp(1.1rem,4.8vw,1.45rem)}
-  .panji-cell .tithi{font-size:.66rem}
-  .panji-hd{font-size:.6rem;padding:7px 2px}
+  .panji-cell:not(.mobile-compact) .solar{font-size:.54rem}
+  .panji-cell:not(.mobile-compact) .num{font-size:clamp(1.1rem,4.8vw,1.45rem)}
+  .panji-cell:not(.mobile-compact) .tithi{font-size:.66rem}
+  .panji-hd{font-size:.6rem;padding:7px 2px;white-space:nowrap}
   .fest-bg{background-size:min(92%,88px)}
+  .cal-body{padding:8px 8px 12px}
+  .legend{display:none}
 }
 @media (max-width:380px){
-  .panji-cell{min-height:118px;padding:5px}
-  .panji-cell .num{font-size:1.22rem}
-  .mark-icon{width:16px;height:16px}
+  .panji-grid.cols.mobile-cal{min-width:672px;grid-template-columns:repeat(7,minmax(88px,1fr))}
+  .panji-cell.mobile-compact{min-height:82px}
+  .panji-cell.mobile-compact .num{font-size:1.2rem}
   .fest-bg{background-size:min(96%,72px);opacity:.52}
 }
 .panji-cell.fest:not(.fest-themed):not(.selected){background:var(--cal-cell-fest)}
@@ -706,6 +751,23 @@ body.theme-light .cal-upcoming strong{color:#5c2a12}
 .legend-chip img{width:16px;height:16px;object-fit:contain;flex:0 0 auto}
 .legend-row span,
 .legend-chip span{flex:0 1 auto;min-width:0}
+
+.fest-panel{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.fest-panel .glass{padding:12px}
+.fest-panel .fest-empty{padding:14px;color:var(--muted);font-size:.82rem;text-align:center}
+.fest-group{margin-top:4px}
+.fest-group-title{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--cal-accent);padding:4px 2px 6px}
+.fest-row{display:flex;align-items:flex-start;gap:10px;padding:10px 8px;border-radius:12px;border:1px solid rgba(140,190,255,.14);background:rgba(255,255,255,.04);margin-bottom:6px}
+.fest-row img{width:28px;height:28px;flex:0 0 28px;object-fit:contain}
+.fest-row-main{flex:1;min-width:0}
+.fest-row-name{font-size:.84rem;font-weight:800;line-height:1.25;color:var(--text)}
+.fest-row-meta{font-size:.68rem;color:var(--muted);margin-top:3px}
+.fest-row.cat-major{border-color:rgba(240,193,74,.35);background:rgba(240,193,74,.08)}
+.fest-row.cat-regional{border-color:rgba(110,200,255,.28)}
+.fest-row.cat-vrata{opacity:.92}
+.fest-row.is-today{box-shadow:inset 0 0 0 1.5px rgba(240,193,74,.55)}
+body.theme-light .fest-row{background:rgba(255,253,248,.92);border-color:rgba(36,26,18,.12)}
+body.theme-light .fest-row.cat-major{background:rgba(255,236,190,.55)}
 
 /* Regional accents — soft tint only, never maroon panjika chrome */
 .panji.bengali .panji-cell.fest:not(.selected){background:rgba(90,200,140,.12)}
@@ -806,6 +868,7 @@ body.theme-light .cal-upcoming strong{color:#5c2a12}
         <div class="h-scroll" id="hours"></div>
       </section>
       <section class="widgets" id="widgets"></section>
+      <section id="muhuratList"></section>
       <section id="r"></section>
       <section id="h"></section>
       <p class="brand-foot" id="subtitle"></p>
@@ -1353,6 +1416,7 @@ function cellHtml(day) {
     .filter(Boolean)
     .join(", ");
   const cls = ["panji-cell"];
+  if (isMobile()) cls.push("mobile-compact");
   if (day.date === $("date").value) cls.push("selected");
   if (day.date === todayIso()) cls.push("today");
   if (day.vaar_index === 0 || day.vaar_index === 6) cls.push("weekend");
@@ -1394,13 +1458,16 @@ function renderPanjiGrid() {
   const total = new Date(viewYear, viewMonth, 0).getDate();
   const panel = $("calendarPanel");
   panel.className = `glass cal-card panji ${calStyle}`;
+  const mobile = isMobile();
+  const useRowLayout = calLayout === "row_weekday" && !mobile;
+  $("panjiWrap").className = mobile ? "panji-wrap mobile-cal" : "panji-wrap";
 
-  if (calLayout === "row_weekday") {
+  if (useRowLayout) {
     const weeks = Math.ceil((firstDow + total) / 7);
-    let html = `<div class="panji-grid rows"><div class="panji-hd"></div>`;
+    let html = `<div class="panji-grid rows${mobile ? " mobile-cal" : ""}" style="--panji-weeks:${weeks}"><div class="panji-hd"></div>`;
     for (let w = 1; w <= weeks; w++) html += `<div class="panji-hd">${N(w)}</div>`;
     for (let v = 0; v < 7; v++) {
-      html += `<div class="vaar-rail">${Array.from(vaar[v] || "").slice(0, 3).join("")}</div>`;
+      html += `<div class="vaar-rail">${Array.from(vaar[v] || "").slice(0, 4).join("")}</div>`;
       for (let w = 0; w < weeks; w++) {
         const idx = w * 7 + v - firstDow + 1;
         html += cellHtml(idx >= 1 && idx <= total ? byDay[idx] : null);
@@ -1409,7 +1476,7 @@ function renderPanjiGrid() {
     html += `</div>`;
     $("panjiWrap").innerHTML = html;
   } else {
-    let html = `<div class="panji-grid cols">${vaar.map((v) => `<div class="panji-hd">${Array.from(v || "").slice(0, 3).join("")}</div>`).join("")}`;
+    let html = `<div class="panji-grid cols${mobile ? " mobile-cal" : ""}">${vaar.map((v) => `<div class="panji-hd">${Array.from(v || "").slice(0, 3).join("")}</div>`).join("")}`;
     for (let i = 0; i < firstDow; i++) html += cellHtml(null);
     for (let d = 1; d <= total; d++) html += cellHtml(byDay[d]);
     html += `</div>`;
@@ -1556,6 +1623,66 @@ function hourCards(list, table, icon) {
   }).join("");
 }
 
+function festDisplayName(event) {
+  const L = lang();
+  return event?.names?.[L] || event?.names?.en || event?.id || "—";
+}
+
+function festCategoryLabel(cat) {
+  const u = ui();
+  const L = lang();
+  const map = {
+    major: u.festival || "Festival",
+    regional: (I.ui?.[L]?.regional || I.ui?.hi?.regional) || "Regional",
+    minor: (I.ui?.[L]?.minor || I.ui?.hi?.minor) || "Minor",
+    vrata: VRATA_TITLE[L] || VRATA_TITLE.hi || "Vrata",
+  };
+  return map[cat] || cat;
+}
+
+function renderFestRow(event, { highlight = false } = {}) {
+  const icon = festivalIconSrc([event]);
+  const cat = event.category || "major";
+  return `<div class="fest-row cat-${escAttr(cat)}${highlight ? " is-today" : ""}">
+    ${panjiIconImg(icon)}
+    <div class="fest-row-main">
+      <div class="fest-row-name">${escAttr(festDisplayName(event))}</div>
+      <div class="fest-row-meta">${escAttr(localizeDate(event.date))} · ${escAttr(festCategoryLabel(cat))}</div>
+    </div>
+  </div>`;
+}
+
+function renderFestivalsPanel(todayEvents, monthEvents, selectedDate) {
+  const u = ui();
+  const title = u.festival || u.nav_festivals || "Festivals";
+  const todayTitle = u.today || "Today";
+  const monthTitle = (I.months[lang()] || I.months.hi)[viewMonth - 1] || "";
+  const seen = new Set();
+  const monthUnique = [];
+  for (const ev of (monthEvents || []).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))) {
+    const key = `${ev.date}:${ev.id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    monthUnique.push(ev);
+  }
+  const todayList = todayEvents?.length
+    ? todayEvents.map((ev) => renderFestRow(ev, { highlight: true })).join("")
+    : `<div class="fest-empty">${escAttr(u.no_festivals_today || "No festival on this date.")}</div>`;
+  const monthList = monthUnique.length
+    ? monthUnique.map((ev) => renderFestRow(ev, { highlight: ev.date === selectedDate })).join("")
+    : `<div class="fest-empty">${escAttr(u.no_festivals_month || "No festivals this month.")}</div>`;
+  return `<div class="fest-panel">
+    <div class="glass">
+      <div class="section-title">${escAttr(title)} · ${escAttr(todayTitle)}</div>
+      ${todayList}
+    </div>
+    <div class="glass">
+      <div class="section-title">${escAttr(title)} · ${escAttr(monthTitle)} ${N(viewYear)}</div>
+      <div class="fest-group">${monthList}</div>
+    </div>
+  </div>`;
+}
+
 function listCard(title, list, table) {
   if (!list?.length) return "";
   const u = ui();
@@ -1592,7 +1719,7 @@ function renderDayHtml(p, loc, scene) {
       <button type="button" class="glass widget" data-detail="${u.rahu_kalam}|${localizeTime(p.inauspicious_timings.rahu_kalam)}"><div class="lbl"><img src="/assets/twilight-veil.png" alt="">${u.rahu_kalam}</div><div class="val">${localizeTime(p.inauspicious_timings.rahu_kalam)}</div></button>
       <button type="button" class="glass widget" data-detail="${u.karana}|${loc.karana}"><div class="lbl">${u.karana}</div><div class="val">${loc.karana}</div><div class="hint">${u.system}: ${loc.system}</div></button>
       <button type="button" class="glass widget" data-detail="${u.vaar}|${loc.vaar}"><div class="lbl">${u.vaar}</div><div class="val">${loc.vaar}</div><div class="hint">${u.yoga}: ${loc.yoga}</div></button>`,
-    list: listCard(gowri.length ? u.gowri : u.choghadiya, strip, stripTable),
+    muhuratList: listCard(gowri.length ? u.gowri : u.choghadiya, strip, stripTable),
   };
 }
 
@@ -1844,7 +1971,7 @@ function openSheet() {
       <div class="h-scroll">${html.hours}</div>
     </section>
     <section class="widgets">${html.widgets}</section>
-    ${html.list}
+    ${html.muhuratList}
     <div id="sheetRashi"></div>`;
   if (lastPayload.rashiHtml) $("sheetRashi").innerHTML = lastPayload.rashiHtml;
   bindDetails($("sheetBody"));
@@ -1862,15 +1989,29 @@ async function loadAll() {
   const u = ui();
   $("status").textContent = u.calculating;
   try {
+    const dateStr = $("date").value;
+    const festYear = Number(dateStr.slice(0, 4));
+    const festMonth = Number(dateStr.slice(5, 7));
     const qs = new URLSearchParams({
       state_code: $("state").value,
       lat: $("lat").value,
       lon: $("lon").value,
       timezone: "Asia/Kolkata",
-      date_str: $("date").value,
+      date_str: dateStr,
       lang: lang(),
     });
-    const p = await fetch(`/api/v1/panchang?${qs}`).then((x) => x.json());
+    const festQs = new URLSearchParams({
+      state_code: $("state").value,
+      lat: $("lat").value,
+      lon: $("lon").value,
+      timezone: "Asia/Kolkata",
+      date_str: dateStr,
+    });
+    const [p, festDay, festMonthEvents] = await Promise.all([
+      fetch(`/api/v1/panchang?${qs}`).then((x) => x.json()),
+      fetch(`/api/v1/festivals?${festQs}`).then((r) => (r.ok ? r.json() : { events: [] })).catch(() => ({ events: [] })),
+      fetchMonthFestivals(festYear, festMonth),
+    ]);
     const loc = localizePanchang(p);
     const scene = sceneAssets(p);
     applySky(scene.sky, scene.main);
@@ -1885,7 +2026,8 @@ async function loadAll() {
     $("hoursTitle").textContent = html.hoursTitle;
     $("hours").innerHTML = html.hours || `<div class="hour-card"><div class="v">—</div></div>`;
     $("widgets").innerHTML = html.widgets;
-    $("r").innerHTML = html.list;
+    if ($("muhuratList")) $("muhuratList").innerHTML = html.muhuratList;
+    $("r").innerHTML = renderFestivalsPanel(festDay.events || [], festMonthEvents, dateStr);
     bindDetails($("dayPanel"));
 
     const L = lang();
@@ -1950,6 +2092,14 @@ async function initializeApp() {
   syncDateDisplay();
   await loadAll();
 }
+let lastMobileLayout = isMobile();
+window.addEventListener("resize", () => {
+  const mobile = isMobile();
+  if (mobile !== lastMobileLayout && monthDays.length) {
+    lastMobileLayout = mobile;
+    renderPanjiGrid();
+  }
+});
 initializeApp();
 </script>
 </body>
