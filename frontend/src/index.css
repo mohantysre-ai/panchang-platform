@@ -16,3 +16,10 @@ select,
 input {
   font: inherit;
 }
+
+/* Keep controls clear of notches, home indicators and edge-to-edge system bars. */
+#root {
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+button, select, input { min-height: 44px; }

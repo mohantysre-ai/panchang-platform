@@ -1,3 +1,5 @@
+import { apiUrl } from './apiOrigin';
+
 export interface PanchangResponse {
   date: string;
   state_code: string;
@@ -95,7 +97,7 @@ export function formatDisplayDate(iso: string): string {
 }
 
 async function getJson<T>(url: string): Promise<T> {
-  const res = await fetch(url);
+  const res = await fetch(apiUrl(url), { signal: AbortSignal.timeout(20000) });
   if (!res.ok) {
     throw new Error(`Request failed (${res.status})`);
   }

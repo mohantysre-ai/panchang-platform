@@ -10,3 +10,15 @@ data/festivals/festivals_v*.json
 .vscode/
 frontend/node_modules/
 frontend/dist/
+
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/**/build/
+frontend/android/capacitor-cordova-android-plugins/
+frontend/ios/App/App/public/
+frontend/ios/App/App/capacitor.config.json
+frontend/ios/App/build/
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
