@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+import { apiUrl } from '../services/apiOrigin';
 import React, { useEffect, useMemo, useState } from 'react';
 import { CelestialHeader } from '../components/CelestialHeader';
 import { updatePanchangLockScreen } from '../services/liveActivityService';
@@ -283,10 +285,11 @@ export const PanchangDashboard: React.FC = () => {
       </div>
 
       <p className="text-center text-xs opacity-50 mt-6">
-        <a href="/classic" className="underline underline-offset-2">
+        <a href={Capacitor.isNativePlatform() ? '/classic.html' : apiUrl('/classic')} className="underline underline-offset-2">
           Open classic calendar UI
         </a>
       </p>
+      <p className="text-center text-sm mt-4"><a href="/privacy.html">Privacy policy</a></p>
     </div>
   );
 };

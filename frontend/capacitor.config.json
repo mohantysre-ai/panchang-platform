@@ -2,7 +2,6 @@
   "appId": "ai.panchang.regional",
   "appName": "Regional Panchang",
   "webDir": "dist",
-  "bundledWebRuntime": false,
   "plugins": {
     "SplashScreen": {
       "launchAutoHide": true,
